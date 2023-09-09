@@ -18,7 +18,7 @@ import java.util.Map;
 
 
 /**
- * 部门管理Controller
+ * 登入Controller
  */
 @Slf4j
 @RestController
@@ -111,7 +111,7 @@ public class LoginController {
             log.info("剩余一周，续期");
             /*获得用户密码*/
             String password = loginService.getUserPassword(jwt.getUsername());
-            log.info("password:{}",password);
+            log.info("password:{}", password);
             /*生成jwt证书*/
             Map<String, Object> claims = new HashMap<>();
             claims.put("username", jwt.getUsername());
