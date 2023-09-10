@@ -26,7 +26,7 @@ public class WordServiceImpl implements WordService {
     }
 
     /**
-     * 查找单词
+     * 精确查找单词
      *
      * @param word
      * @return
@@ -35,6 +35,17 @@ public class WordServiceImpl implements WordService {
     public Word findWord(Word word) {
 
         return wordMapper.findWord(word);
+    }
+
+    /**
+     * 模糊查找单词
+     *
+     * @param word
+     * @return
+     */
+    @Override
+    public List<Word> findLikeWord(Word word) {
+        return wordMapper.findLikeWord(word);
     }
 
     /**

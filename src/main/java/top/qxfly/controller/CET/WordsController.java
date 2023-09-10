@@ -9,6 +9,7 @@ import top.qxfly.pojo.CET.Word;
 import top.qxfly.pojo.Result;
 import top.qxfly.service.CET.WordService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -56,7 +57,7 @@ public class WordsController {
         } else {
             Word w = wordService.findWord(word);
             if (w == null) {
-                return Result.error("没有找到该单词！！");
+                return Result.error("没有找到单词！！");
             } else {
                 wordService.deleteWord(word);
                 return Result.error("单词删除成功！！");
@@ -73,8 +74,65 @@ public class WordsController {
     @PostMapping("/listWord")
     public Result listWord() {
         List<Word> wordList = wordService.listWords();
-            System.out.println(wordList);
+        System.out.println(wordList);
         return Result.success(wordList);
     }
 
+    /**
+     * 精确搜索单词
+     *
+     * @param word
+     * @return
+     */
+    @PostMapping("/searchWord")
+    public Result searchWord(@RequestBody Word word) {
+        log.info("word:{}", word.getWord());
+
+        /* 判断是否为空 */
+        if (word.getWord().equals("")) {
+            return Result.error("请输入要搜索的单词！！");
+        } else {
+            String[] wordList = word.getWord().split(";");
+            List<Word> w = new ArrayList<>();
+            for (String s : wordList) {
+                Word word1 = new Word(s.replace(" ", "")); // 去除多余空格
+                if (wordService.findWord(word1) != null)
+                    if (!w.contains(wordService.findWord(word1))) {
+                        w.add(wordService.findWord(word1));
+                    }
+            }
+            if (w.isEmpty()) {
+                return Result.error("没有查找到单词！！");
+            } else {
+                System.out.println(w);
+                return Result.success(w);
+            }
+        }
+
+    }
+
+    /**
+     * 模糊搜索单词
+     *
+     * @param word
+     * @return
+     */
+    @PostMapping("/likeSearchWord")
+    public Result likeSearchWord(@RequestBody Word word) {
+        log.info("word:{}", word.getWord());
+
+        /* 判断是否为空 */
+        if (word.getWord().equals("")) {
+            return Result.error("请输入要搜索的单词！！");
+        } else {
+            Word word1 = new Word(word.getWord().replace(" ", "")); // 去除多余空格
+            if (!wordService.findLikeWord(word1).isEmpty()) {
+                return Result.success(wordService.findLikeWord(word1));
+            }else {
+                return Result.error("没有匹配到单词！！");
+            }
+
+        }
+
+    }
 }

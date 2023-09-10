@@ -21,4 +21,7 @@ public class Word {
     String type4;
     String zhcn4;
 
+    public Word(String s) {
+        this.word = s;
+    }
 }

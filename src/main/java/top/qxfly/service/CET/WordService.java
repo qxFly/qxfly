@@ -13,14 +13,6 @@ public interface WordService {
     void addWord(Word word);
 
     /**
-     * 查找单词
-     *
-     * @param word
-     * @return
-     */
-    Word findWord(Word word);
-
-    /**
      * 删除单词
      *
      * @param word
@@ -33,4 +25,20 @@ public interface WordService {
      * @return
      */
     List<Word> listWords();
+
+    /**
+     * 精确查找单词
+     *
+     * @param word
+     * @return
+     */
+    Word findWord(Word word);
+
+    /**
+     * 模糊查找单词
+     *
+     * @param word
+     * @return
+     */
+    List<Word> findLikeWord(Word word);
 }
