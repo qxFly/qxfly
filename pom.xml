@@ -10,7 +10,7 @@
     </parent>
     <groupId>top.qxfly</groupId>
     <artifactId>qxfly</artifactId>
-    <version>bate-1.1.5</version>
+    <version>bate-1.1.6</version>
     <name>qxfly</name>
     <description>qxfly</description>
     <properties>

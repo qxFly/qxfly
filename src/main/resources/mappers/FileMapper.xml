@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.qxfly.mapper.FileMapper">
+    <resultMap type="top.qxfly.pojo.FilePO" id="FileResult">
+        <id     property="fileId"       column="f_id"      />
+        <result property="name"     column="f_name"    />
+        <result property="md5"     column="f_md5"    />
+        <result property="size"     column="f_size"    />
+
+    </resultMap>
+    <insert id="insertFile">
+        insert into file(f_name,f_md5,f_size)
+        values(#{name},#{md5},#{size});
+    </insert>
+
+    <delete id="deleteFile">
+        delete from contact where ct_id = #{contactId}
+    </delete>
+    <select id="selectFileList" resultMap="FileResult">
+        select * from file order by f_id desc
+    </select>
+    <select id="selectFileByMd5" resultMap="FileResult">
+        select * from file where f_md5 = #{md5}
+    </select>
+
+
+</mapper>

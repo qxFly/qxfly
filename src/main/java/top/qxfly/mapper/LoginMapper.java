@@ -16,7 +16,7 @@ public interface LoginMapper {
      * @param user
      * @return
      */
-    @Select("select * from user where username = #{username} and password = #{password}")
+//    @Select("select * from user where username = #{username} and password = #{password}")
     User login(User user);
 
     /**

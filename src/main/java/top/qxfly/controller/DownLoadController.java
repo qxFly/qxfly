@@ -26,12 +26,13 @@ public class DownLoadController {
 
     @Autowired
     private ChunkService chunkService;
+
     @PostMapping("/download")
     public void download(@RequestParam("md5") String md5,
-                           @RequestParam("fileName") String fileName,
-                           @RequestParam("chunkSize") Integer chunkSize,
+                         @RequestParam("fileName") String fileName,
+                         @RequestParam("chunkSize") Integer chunkSize,
                          @RequestParam("chunkTotal") Integer chunkTotal,
-                           @RequestParam("index")Integer index,
+                         @RequestParam("index") Integer index,
                          HttpServletResponse response) {
         String[] splits = fileName.split("\\.");
         String type = splits[splits.length - 1];
@@ -40,13 +41,13 @@ public class DownLoadController {
         File resultFile = new File(resultFileName);
 
         long offset = (long) chunkSize * (index - 1);
-        if(Objects.equals(index, chunkTotal)){
-            offset = resultFile.length() -chunkSize;
+        if (Objects.equals(index, chunkTotal)) {
+            offset = resultFile.length() - chunkSize;
         }
-        byte[] chunk = chunkService.getChunk(index, chunkSize, resultFileName,offset);
+        byte[] chunk = chunkService.getChunk(index, chunkSize, resultFileName, offset);
 
 
-        logger.info("下载文件分片" + resultFileName + "," + index + "," + chunkSize + "," + chunk.length+","+offset);
+        logger.info("下载文件分片" + resultFileName + "," + index + "," + chunkSize + "," + chunk.length + "," + offset);
 //        response.addHeader("Access-Control-Allow-Origin","Content-Disposition");
         response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
         response.addHeader("Content-Length", "" + (chunk.length));

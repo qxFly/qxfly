@@ -1,5 +1,6 @@
 package top.qxfly.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.qxfly.mapper.FileMapper;
@@ -9,6 +10,7 @@ import top.qxfly.service.FileService;
 import java.util.List;
 
 @Service
+@Slf4j
 public class FileServiceImpl implements FileService {
     @Autowired
     private FileMapper fileMapper;
@@ -27,6 +29,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public List<FilePO> selectFileList() {
         List<FilePO> list = fileMapper.selectFileList();
+        log.info("FileServiceImpl.list:{}",list);
         return  list;
     }
 }

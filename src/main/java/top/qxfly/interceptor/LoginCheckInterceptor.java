@@ -31,7 +31,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         log.info("请求的url:{}", url);
 
         //判断是否为 login 或 listfile,如果是放行
-        String[] urllist = {"login", "logout", "register","listfile", "loginStatue", "updateLoginStatue", "download", "fileList", "check", "chunk","listWord"};
+        String[] urllist = {"login", "logout", "register","listfile", "loginStatue", "updateLoginStatue", "download", "fileList", "listWord"};
         for (String s : urllist) {
             /*log.info("urllist{}", s);*/
             if (url.contains(s)) {

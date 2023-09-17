@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.qxfly.mapper.ChunkMapper">
+    <resultMap type="top.qxfly.pojo.ChunkPO" id="ChunkResult">
+        <id     property="chunkId"       column="c_id"      />
+
+
+        <result property="md5"     column="c_md5"    />
+        <result property="index"     column="c_index"    />
+
+    </resultMap>
+    <insert id="insertChunk">
+        insert into chunk(c_md5,c_index)
+        values(#{md5},#{index});
+    </insert>
+    <delete id="deleteChunkByMd5">
+        delete from chunk where c_md5 = #{md5}
+    </delete>
+    <select id="selectChunkListByMd5" resultMap="ChunkResult">
+        select * from chunk where c_md5 = #{md5}
+    </select>
+
+
+</mapper>

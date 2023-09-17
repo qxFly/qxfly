@@ -6,6 +6,7 @@ public class FilePO {
     String name;
     Long size;
 
+
     public Integer getFileId() {
         return fileId;
     }
@@ -37,7 +38,6 @@ public class FilePO {
     public void setSize(Long size) {
         this.size = size;
     }
-
 
 
     public FilePO(String name, String md5, Long size) {
