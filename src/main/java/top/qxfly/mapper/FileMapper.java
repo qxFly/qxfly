@@ -13,4 +13,6 @@ public interface FileMapper {
     FilePO selectFileByMd5(String md5);
 
     List<FilePO> selectFileList();
+
+    void deleteFileByMd5(String md5);
 }

@@ -12,6 +12,7 @@ import top.qxfly.pojo.Result;
 import top.qxfly.service.ChunkService;
 import top.qxfly.service.FileService;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,6 @@ import java.util.Objects;
 @CrossOrigin
 @Slf4j
 public class FileController {
-    Logger logger = LoggerFactory.getLogger(getClass());
 
     @Value("${file.path}")
     private String filePath;
@@ -84,5 +84,29 @@ public class FileController {
         List<FilePO> fileList = fileService.selectFileList();
         log.info("fileList:{}", fileList.toString());
         return new Result(201, "文件列表查询成功", fileList);
+    }
+
+    /**
+     * 删除文件
+     *
+     * @param filePO
+     * @return
+     */
+    @PostMapping("/deleteFile")
+    public Result deleteFile(@RequestBody FilePO filePO){
+        log.info("filePO:{}",filePO);
+        String[] suffixes = filePO.getName().split("\\.");
+        String fileName = filePO.getMd5() + "." + suffixes[suffixes.length -1];
+        log.info("fileName:{}",fileName);
+
+        File file = new File(filePath + fileName);
+        boolean fileDelete = file.delete();
+        log.info(String.valueOf(file.delete()));
+        if(fileDelete){
+            fileService.deleteFile(filePO.getMd5());
+            return Result.success("删除成功");
+        } else {
+            return Result.error("删除失败");
+        }
     }
 }

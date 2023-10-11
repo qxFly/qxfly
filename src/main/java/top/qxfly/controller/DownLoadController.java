@@ -2,22 +2,22 @@ package top.qxfly.controller;
 
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import top.qxfly.service.ChunkService;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.Objects;
 
 @Controller
 @CrossOrigin
+@Slf4j
 public class DownLoadController {
     Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -67,5 +67,40 @@ public class DownLoadController {
 
 
     }
+
+
+    @PostMapping("/downloadtest")
+    public void download(String fileName, HttpServletResponse response) {
+        log.info("fileName；{}",fileName);
+        try {
+            // path是指欲下载的文件的路径。
+            File file = new File(filePath + fileName);
+            // 取得文件名。
+            String filename = file.getName();
+            log.info("filename；{}",filename);
+            // 取得文件的后缀名。
+            String ext = filename.substring(filename.lastIndexOf(".") + 1).toUpperCase();
+            log.info("filename；{}",filename);
+            // 以流的形式下载文件。
+            InputStream fis = new BufferedInputStream(new FileInputStream(filePath+ fileName));
+            byte[] buffer = new byte[fis.available()];
+            fis.read(buffer);
+            fis.close();
+            // 清空response
+            response.reset();
+            // 设置response的Header
+            response.addHeader("Content-Disposition", "attachment;filename=" + new String(filename.getBytes()));
+            response.addHeader("Content-Length", "" + file.length());
+            ServletOutputStream out = null;
+            out = response.getOutputStream();
+            response.setContentType("application/octet-stream");
+            out.write(buffer);
+            out.flush();
+            out.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
 }

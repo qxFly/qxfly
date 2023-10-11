@@ -13,8 +13,8 @@
         values(#{name},#{md5},#{size});
     </insert>
 
-    <delete id="deleteFile">
-        delete from contact where ct_id = #{contactId}
+    <delete id="deleteFileByMd5">
+        delete from file where f_md5 = #{md5}
     </delete>
     <select id="selectFileList" resultMap="FileResult">
         select * from file order by f_id desc

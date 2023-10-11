@@ -29,7 +29,12 @@ public class FileServiceImpl implements FileService {
     @Override
     public List<FilePO> selectFileList() {
         List<FilePO> list = fileMapper.selectFileList();
-        log.info("FileServiceImpl.list:{}",list);
-        return  list;
+        log.info("FileServiceImpl.list:{}", list);
+        return list;
+    }
+
+    @Override
+    public void deleteFile(String md5) {
+        fileMapper.deleteFileByMd5(md5);
     }
 }

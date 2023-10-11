@@ -11,4 +11,6 @@ public interface FileService {
     Boolean selectFileByMd5(String md5);
 
     List<FilePO> selectFileList();
+
+    void deleteFile(String md5);
 }
