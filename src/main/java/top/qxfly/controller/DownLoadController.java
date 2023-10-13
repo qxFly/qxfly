@@ -37,7 +37,7 @@ public class DownLoadController {
         String[] splits = fileName.split("\\.");
         String type = splits[splits.length - 1];
         String resultFileName = filePath + md5 + "." + type;
-
+        log.info("resultFileName:{}",resultFileName);
         File resultFile = new File(resultFileName);
 
         long offset = (long) chunkSize * (index - 1);
@@ -47,7 +47,7 @@ public class DownLoadController {
         byte[] chunk = chunkService.getChunk(index, chunkSize, resultFileName, offset);
 
 
-        logger.info("下载文件分片" + resultFileName + "," + index + "," + chunkSize + "," + chunk.length + "," + offset);
+        log.info("下载文件分片" + resultFileName + "," + index + "," + chunkSize + "," + chunk.length + "," + offset);
 //        response.addHeader("Access-Control-Allow-Origin","Content-Disposition");
         response.addHeader("Content-Disposition", "attachment;filename=" + fileName);
         response.addHeader("Content-Length", "" + (chunk.length));
