@@ -37,4 +37,15 @@ public class FileServiceImpl implements FileService {
     public void deleteFile(String md5) {
         fileMapper.deleteFileByMd5(md5);
     }
+
+    /**
+     * 根据md5获取文件真实名字
+     *
+     * @param s
+     * @return
+     */
+    @Override
+    public String getFileName(String s) {
+        return fileMapper.getFileNameByMd5(s);
+    }
 }

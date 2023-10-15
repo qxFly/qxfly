@@ -1,22 +1,18 @@
 package top.qxfly.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import top.qxfly.pojo.FilePO;
+import top.qxfly.pojo.LocalFile;
 import top.qxfly.pojo.Result;
 import top.qxfly.service.ChunkService;
 import top.qxfly.service.FileService;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @CrossOrigin
@@ -26,10 +22,13 @@ public class FileController {
     @Value("${file.path}")
     private String filePath;
 
+    @Value("${download.path}")
+    private String downloadPath;
     @Autowired
     private FileService fileService;
     @Autowired
     private ChunkService chunkService;
+
 
     @GetMapping("/check")
     public Result checkFile(@RequestParam("md5") String md5) {
@@ -78,12 +77,33 @@ public class FileController {
 
     }
 
+    //暂无用
     @GetMapping("/fileList")
     public Result getFileList() {
         log.info("查询文件列表");
         List<FilePO> fileList = fileService.selectFileList();
         log.info("fileList:{}", fileList.toString());
         return new Result(201, "文件列表查询成功", fileList);
+    }
+
+    @PostMapping("/listfile")
+    public Result listfile() {
+        File path = new File(filePath);
+        List<LocalFile> list = new ArrayList<>();
+        String[] filename = path.list();
+        if (filename != null) {
+            for (String s : filename) {
+                String[] md5s = s.split("\\.");
+                String realName = fileService.getFileName(md5s[0]);
+                log.info("realName:{}",realName);
+                String filepath = downloadPath + s;
+                LocalFile localFile = new LocalFile(realName,s, filepath);
+                log.info(String.valueOf(localFile));
+                list.add(localFile);
+            }
+        }
+        log.info("列出文件列表...");
+        return Result.success(list);
     }
 
     /**

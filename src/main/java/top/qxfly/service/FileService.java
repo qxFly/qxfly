@@ -13,4 +13,12 @@ public interface FileService {
     List<FilePO> selectFileList();
 
     void deleteFile(String md5);
+
+    /**
+     * 根据md5获取文件真实名字
+     *
+     * @param s
+     * @return
+     */
+    String getFileName(String s);
 }

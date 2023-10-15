@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LocalFile {
-    private String fileRealName;
+    private String fileName;
     private String fileMd5Name;
     private String filePath;
 

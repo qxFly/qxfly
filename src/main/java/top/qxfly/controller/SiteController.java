@@ -38,4 +38,15 @@ public class SiteController {
             return Result.error("添加失败，请加上 https:// 或 http://");
         }
     }
+
+    @PostMapping("/deletesite")
+    public Result deleteSite(@RequestBody Site site){
+        boolean flag =  siteService.deleteSite(site);
+        if (flag){
+            return Result.success("删除成功！");
+        }else {
+            return Result.error("删除失败");
+        }
+
+    }
 }

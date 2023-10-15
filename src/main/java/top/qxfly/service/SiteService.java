@@ -19,4 +19,12 @@ public interface SiteService {
      * @return
      */
     boolean addSite(Site site);
+
+    /**
+     * 根据id删除站点
+     *
+     * @param site
+     * @return
+     */
+    boolean deleteSite(Site site);
 }

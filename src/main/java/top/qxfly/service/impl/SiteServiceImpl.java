@@ -34,4 +34,16 @@ public class SiteServiceImpl implements SiteService {
     public boolean addSite(Site site) {
         return siteMapper.addSite(site);
     }
+
+    /**
+     * 根据id删除站点
+     *
+     * @param site
+     * @return
+     */
+    @Override
+    public boolean deleteSite(Site site) {
+
+        return siteMapper.deleteSiteById(site);
+    }
 }
