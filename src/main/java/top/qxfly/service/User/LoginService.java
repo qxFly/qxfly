@@ -1,6 +1,6 @@
-package top.qxfly.service;
+package top.qxfly.service.User;
 
-import top.qxfly.pojo.Jwt;
+import top.qxfly.pojo.Token;
 import top.qxfly.pojo.User;
 
 public interface LoginService {
@@ -18,46 +18,46 @@ public interface LoginService {
      * @param user
      * @return
      */
-    Jwt getJwt(User user);
+    Token getTokenByUser(User user);
 
     /**
      * 设置用户的token
      *
      * @param username
-     * @param newJwt
+     * @param newToken
      */
-    void setJwt(String username, String newJwt, long createDate);
+    void setToken(String username, String newToken, long createDate);
 
     /**
      * 删除用户token
      *
-     * @param jwt
+     * @param token
      */
-    void deleteJwt(Jwt jwt);
+    void deleteToken(Token token);
 
     /**
      * 更新用户token
      *
      * @param username
-     * @param newJwt
+     * @param newToken
      */
-    void updateJwt(String username, String newJwt, long nowDate);
+    void updateToken(String username, String newToken, long nowDate);
 
     /**
      * 获取token创建时间
      *
-     * @param jwt
+     * @param token
      * @return
      */
-    long getJwtCreateTime(Jwt jwt);
+    long getJwtCreateTime(Token token);
 
     /**
      * 检查登录状态
      *
-     * @param jwt
+     * @param token
      * @return
      */
-    String GetLoginStatue(Jwt jwt);
+    String checkLoginStatue(Token token);
 
     /**
      * 获得用户密码

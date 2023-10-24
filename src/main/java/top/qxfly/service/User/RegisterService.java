@@ -1,4 +1,4 @@
-package top.qxfly.service;
+package top.qxfly.service.User;
 
 import top.qxfly.pojo.User;
 
@@ -12,10 +12,10 @@ public interface RegisterService {
     void register(User user);
 
     /**
-     * 查找用户
+     * 检测用户名是否被注册
      *
      * @param user
      * @return
      */
-    User findUser(User user);
+    User checkUserName(User user);
 }

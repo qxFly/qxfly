@@ -1,4 +1,4 @@
-package top.qxfly.mapper;
+package top.qxfly.mapper.User;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -17,11 +17,11 @@ public interface RegisterMapper {
     void register(User user);
 
     /**
-     * 查找用户
+     * 检测用户名是否被注册
      *
      * @param user
      * @return
      */
-    @Select("select * from user where username = #{username}")
-    User findUserByusername(User user);
+    @Select("select username from user where username = #{username}")
+    User findUserByUsername(User user);
 }

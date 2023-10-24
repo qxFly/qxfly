@@ -1,12 +1,12 @@
-package top.qxfly.service.impl;
+package top.qxfly.service.User.Impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import top.qxfly.mapper.LoginMapper;
-import top.qxfly.pojo.Jwt;
+import top.qxfly.mapper.User.LoginMapper;
+import top.qxfly.pojo.Token;
 import top.qxfly.pojo.User;
-import top.qxfly.service.LoginService;
+import top.qxfly.service.User.LoginService;
 import top.qxfly.utils.JwtUtils;
 
 @Slf4j
@@ -33,7 +33,7 @@ public class LoginServiceImpl implements LoginService {
      * @return
      */
     @Override
-    public Jwt getJwt(User user) {
+    public Token getTokenByUser(User user) {
         return loginMapper.getTokenByUser(user);
     }
 
@@ -41,11 +41,11 @@ public class LoginServiceImpl implements LoginService {
      * 设置用户的token
      *
      * @param username
-     * @param newJwt
+     * @param newToken
      */
     @Override
-    public void setJwt(String username, String newJwt, long createDate) {
-        loginMapper.setTokenByUser(username, newJwt, createDate);
+    public void setToken(String username, String newToken, long createDate) {
+        loginMapper.setTokenByUser(username, newToken, createDate);
     }
 
     /**
@@ -54,7 +54,7 @@ public class LoginServiceImpl implements LoginService {
      * @param jwt
      */
     @Override
-    public void deleteJwt(Jwt jwt) {
+    public void deleteToken(Token jwt) {
         loginMapper.deleteJwt(jwt);
     }
 
@@ -65,7 +65,7 @@ public class LoginServiceImpl implements LoginService {
      * @param newJwt
      */
     @Override
-    public void updateJwt(String username, String newJwt, long nowDate) {
+    public void updateToken(String username, String newJwt, long nowDate) {
         loginMapper.updateJwt(username, newJwt, nowDate);
     }
 
@@ -76,24 +76,24 @@ public class LoginServiceImpl implements LoginService {
      * @return
      */
     @Override
-    public long getJwtCreateTime(Jwt jwt) {
+    public long getJwtCreateTime(Token jwt) {
         return loginMapper.getJwtCreateTime(jwt);
     }
 
     /**
      * 检查登录状态
      *
-     * @param jwt
+     * @param token
      * @return
      */
     @Override
-    public String GetLoginStatue(Jwt jwt) {
-        if (jwt == null || jwt.getToken() == null) {
+    public String checkLoginStatue(Token token) {
+        if (token == null || token.getToken() == null) {
             log.info("未登入");
             return "NOT_LOGIN";
         } else {
             try {
-                JwtUtils.parseJWT(jwt.getToken());
+                JwtUtils.parseJWT(token.getToken());
             } catch (Exception e) {
                 e.printStackTrace();
                 log.info("登入状态失效");
@@ -113,4 +113,5 @@ public class LoginServiceImpl implements LoginService {
     public String getUserPassword(String username) {
         return loginMapper.getPasswordByUsername(username);
     }
+
 }

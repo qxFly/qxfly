@@ -1,13 +1,13 @@
-package top.qxfly.controller;
+package top.qxfly.controller.User;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import top.qxfly.pojo.Jwt;
+import top.qxfly.pojo.Token;
 import top.qxfly.pojo.Result;
-import top.qxfly.service.LogoutService;
+import top.qxfly.service.User.LogoutService;
 import top.qxfly.utils.JwtUtils;
 
 @Slf4j
@@ -19,21 +19,21 @@ public class LogoutController {
     /**
      * 退出校验
      *
-     * @param jwt
+     * @param token
      * @return
      */
     @PostMapping("/logout")
-    public Result Login(@RequestBody Jwt jwt) {
-        log.info("token:{}", jwt.getToken());
+    public Result Login(@RequestBody Token token) {
+        log.info("token:{}", token.getToken());
 
-        if (jwt != null) {
+        if (token != null) {
             try {
-                JwtUtils.parseJWT(jwt.getToken());
-                logoutService.logout(jwt);
+                JwtUtils.parseJWT(token.getToken());
+                logoutService.logout(token);
             } catch (Exception e) {
                 e.printStackTrace();
                 log.info("退出操作，但是token已经过期");
-                logoutService.deleteJwt(jwt);
+                logoutService.deleteToken(token);
             }
         }
 

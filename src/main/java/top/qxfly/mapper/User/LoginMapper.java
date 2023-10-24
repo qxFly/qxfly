@@ -1,7 +1,7 @@
-package top.qxfly.mapper;
+package top.qxfly.mapper.User;
 
 import org.apache.ibatis.annotations.*;
-import top.qxfly.pojo.Jwt;
+import top.qxfly.pojo.Token;
 import top.qxfly.pojo.User;
 
 /**
@@ -26,7 +26,7 @@ public interface LoginMapper {
      * @return
      */
     @Select("select * from user_jwt where username = #{username}")
-    Jwt getTokenByUser(User user);
+    Token getTokenByUser(User user);
 
     /**
      * 设置用户的token
@@ -43,7 +43,7 @@ public interface LoginMapper {
      * @param jwt
      */
     @Delete("delete from user_jwt where token = #{token}")
-    void deleteJwt(Jwt jwt);
+    void deleteJwt(Token jwt);
 
     /**
      * 更新用户token
@@ -61,7 +61,7 @@ public interface LoginMapper {
      * @return
      */
     @Select("select create_time from user_jwt where username = #{username}")
-    long getJwtCreateTime(Jwt jwt);
+    long getJwtCreateTime(Token jwt);
 
 
     /**
@@ -72,4 +72,5 @@ public interface LoginMapper {
      */
     @Select("select password from user where username = #{username}")
     String getPasswordByUsername(String username);
+
 }

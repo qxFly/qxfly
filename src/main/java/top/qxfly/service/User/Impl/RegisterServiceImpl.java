@@ -1,11 +1,11 @@
-package top.qxfly.service.impl;
+package top.qxfly.service.User.Impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import top.qxfly.mapper.RegisterMapper;
+import top.qxfly.mapper.User.RegisterMapper;
 import top.qxfly.pojo.User;
-import top.qxfly.service.RegisterService;
+import top.qxfly.service.User.RegisterService;
 
 @Slf4j
 @Service
@@ -24,13 +24,13 @@ public class RegisterServiceImpl implements RegisterService {
     }
 
     /**
-     * 查找用户
+     * 检测用户名是否被注册
      *
      * @param user
      * @return
      */
     @Override
-    public User findUser(User user) {
-        return registerMapper.findUserByusername(user);
+    public User checkUserName(User user) {
+        return registerMapper.findUserByUsername(user);
     }
 }

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Jwt {
+public class Token {
     private String username;
     private String token;
     private Integer time;

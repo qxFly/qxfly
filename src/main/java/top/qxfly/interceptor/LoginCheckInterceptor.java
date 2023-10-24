@@ -42,9 +42,9 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
 
         //获取证书token
-        String jwt = req.getHeader("token");
+        String token = req.getHeader("token");
         //判断证书是否存在，如果不存在，返回错误结果（未登录）
-        if (!StringUtils.hasLength(jwt)) {
+        if (!StringUtils.hasLength(token)) {
             log.info("请求头token为空，返回未登入信息");
             Result error = Result.error("NOT_LOGIN");
             //转换为json对象
@@ -55,7 +55,7 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         //解析token，解析失败，返回错误结果（未登录）
         try {
-            JwtUtils.parseJWT(jwt);
+            JwtUtils.parseJWT(token);
         } catch (Exception e) {
             e.printStackTrace();
             log.info("解析证书失败，未登录");

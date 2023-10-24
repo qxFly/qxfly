@@ -3,17 +3,17 @@ package top.qxfly.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import top.qxfly.pojo.User;
 
 import java.util.Date;
-import java.util.Map;
 
 public class JwtUtils {
     private static String SignKey = "qxfly";
-    private static Long timeout = 2592000000L;
+    private static Long timeout = 2592000000L;//30天
 
-    public static String generateJwt(Map<String, Object> claims, Date date) {
+    public static String createToken(User user, Date date) {
         String jwt = Jwts.builder()
-                .addClaims(claims)
+                .claim("user",user)
                 .setIssuedAt(date) //设置jwt生成时间
                 .signWith(SignatureAlgorithm.HS256, SignKey)
                 .setExpiration(new Date(System.currentTimeMillis() + timeout))
