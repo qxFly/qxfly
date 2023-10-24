@@ -6,10 +6,10 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 
 @ServletComponentScan
 @SpringBootApplication
-public class QxflyApplication {
+public class QxflySpringbootApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(QxflyApplication.class, args);
+        SpringApplication.run(QxflySpringbootApplication.class, args);
     }
 
 }
