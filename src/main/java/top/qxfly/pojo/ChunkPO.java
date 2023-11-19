@@ -1,9 +1,9 @@
 package top.qxfly.pojo;
 
 public class ChunkPO {
-   Integer chunkId;
-   String md5;
-   Integer index;
+    private Integer chunkId;
+    private String md5;
+    private Integer index;
 
     public ChunkPO() {
     }

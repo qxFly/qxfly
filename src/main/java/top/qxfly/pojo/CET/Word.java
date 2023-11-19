@@ -8,18 +8,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Word {
-    String word;
-    String type1;
-    String zhcn1;
+    private String word;
+    private String type1;
+    private String zhcn1;
 
-    String type2;
-    String zhcn2;
+    private String type2;
+    private String zhcn2;
 
-    String type3;
-    String zhcn3;
+    private String type3;
+    private String zhcn3;
 
-    String type4;
-    String zhcn4;
+    private String type4;
+    private String zhcn4;
 
     public Word(String s) {
         this.word = s;

@@ -2,6 +2,7 @@ package top.qxfly.controller.User;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ import java.util.Date;
  * 登入Controller
  */
 @Slf4j
+@CrossOrigin
 @RestController
 public class LoginController {
     @Autowired
@@ -74,7 +76,7 @@ public class LoginController {
 
     /**
      * 检查登录状态
-     *
+     * 暂无用处
      * @param token
      * @return
      */
@@ -95,6 +97,11 @@ public class LoginController {
      */
     @PostMapping("/updateLoginStatue")
     public Result updateLoginStatue(@RequestBody Token token) {
+        /* 检查token有效性 */
+        String loginStatue = loginService.checkLoginStatue(token);
+        if (!loginStatue.equals("LOGIN")) return Result.error(null);
+
+        /* 有效则判断剩余时间 */
         long createTime = loginService.getJwtCreateTime(token);
         Date nowTime = new Date();
         long updateTime = nowTime.getTime();

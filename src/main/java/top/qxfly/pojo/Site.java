@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Site {
 
-    Integer id;
-    String name;
-    String address;
+    private Integer id;
+    private String name;
+    private String address;
 }

@@ -25,7 +25,7 @@ public interface LoginMapper {
      * @param user
      * @return
      */
-    @Select("select * from user_jwt where username = #{username}")
+    @Select("select * from user_token where username = #{username}")
     Token getTokenByUser(User user);
 
     /**
@@ -34,7 +34,7 @@ public interface LoginMapper {
      * @param username
      * @param newJwt
      */
-    @Insert("insert into user_jwt(username,token,create_time)value(#{username},#{newJwt},#{createDate})")
+    @Insert("insert into user_token(username,token,create_time)value(#{username},#{newJwt},#{createDate})")
     void setTokenByUser(String username, String newJwt, long createDate);
 
     /**
@@ -42,7 +42,7 @@ public interface LoginMapper {
      *
      * @param jwt
      */
-    @Delete("delete from user_jwt where token = #{token}")
+    @Delete("delete from user_token where token = #{token}")
     void deleteJwt(Token jwt);
 
     /**
@@ -51,7 +51,7 @@ public interface LoginMapper {
      * @param username
      * @param newJwt
      */
-    @Update("update user_jwt set token = #{newJwt}, create_time = #{nowDate} where username = #{username}")
+    @Update("update user_token set token = #{newJwt}, create_time = #{nowDate} where username = #{username}")
     void updateJwt(String username, String newJwt, long nowDate);
 
     /**
@@ -60,7 +60,7 @@ public interface LoginMapper {
      * @param jwt
      * @return
      */
-    @Select("select create_time from user_jwt where username = #{username}")
+    @Select("select create_time from user_token where username = #{username}")
     long getJwtCreateTime(Token jwt);
 
 

@@ -1,10 +1,10 @@
 package top.qxfly.pojo;
 
 public class FilePO {
-    Integer fileId;
-    String md5;
-    String name;
-    Long size;
+    private Integer fileId;
+    private String md5;
+    private String name;
+    private Long size;
 
 
     public Integer getFileId() {
