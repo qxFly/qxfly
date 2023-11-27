@@ -1,31 +1,27 @@
 package top.qxfly.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.qxfly.pojo.Result;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 @Slf4j
 @RestController
+@CrossOrigin
 public class GetImageController {
     @GetMapping("/getimage")
-    public Result GetImageController(){
-//        String path = System.getProperty("user.dir");
-//        String[] path = paths.split(";");
-        String path = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        System.out.println(path);
-//        File file = new File(path);
+    public Result getImageController(){
+        String path = System.getProperty("user.dir");
         List<String> nameList = new ArrayList<>();
         String name;
-        try (BufferedReader bf = new BufferedReader(new FileReader(path + "imageName.txt"))) {
+        try (BufferedReader bf = new BufferedReader(new FileReader(path+ "/imageName.txt"))) {
             while ((name = bf.readLine()) != null) {
                 nameList.add(name);
             }

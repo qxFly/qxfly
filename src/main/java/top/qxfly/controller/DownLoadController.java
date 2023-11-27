@@ -20,8 +20,6 @@ import java.util.Objects;
 @CrossOrigin
 @Slf4j
 public class DownLoadController {
-    Logger logger = LoggerFactory.getLogger(getClass());
-
     @Value("${file.path}")
     private String filePath;
 
