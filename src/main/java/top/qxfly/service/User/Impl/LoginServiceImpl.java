@@ -76,7 +76,7 @@ public class LoginServiceImpl implements LoginService {
      * @return
      */
     @Override
-    public long getJwtCreateTime(Token jwt) {
+    public long getTokenCreateTime(Token jwt) {
         return loginMapper.getJwtCreateTime(jwt);
     }
 
@@ -102,16 +102,4 @@ public class LoginServiceImpl implements LoginService {
         }
         return "LOGIN";
     }
-
-    /**
-     * 获得用户密码
-     *
-     * @param username
-     * @return
-     */
-    @Override
-    public String getUserPassword(String username) {
-        return loginMapper.getPasswordByUsername(username);
-    }
-
 }

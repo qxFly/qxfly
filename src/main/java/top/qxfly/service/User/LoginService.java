@@ -49,7 +49,7 @@ public interface LoginService {
      * @param token
      * @return
      */
-    long getJwtCreateTime(Token token);
+    long getTokenCreateTime(Token token);
 
     /**
      * 检查登录状态
@@ -59,11 +59,4 @@ public interface LoginService {
      */
     String checkLoginStatue(Token token);
 
-    /**
-     * 获得用户密码
-     *
-     * @param username
-     * @return
-     */
-    String getUserPassword(String username);
 }

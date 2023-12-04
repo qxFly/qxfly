@@ -17,4 +17,10 @@ public interface LogoutService {
      */
     void deleteToken(Token jwt);
 
+    /**
+     * 获取退出状态信息
+     *
+     * @param token
+     */
+    String getLogoutStatus(String token);
 }

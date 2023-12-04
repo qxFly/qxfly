@@ -62,15 +62,4 @@ public interface LoginMapper {
      */
     @Select("select create_time from user_token where username = #{username}")
     long getJwtCreateTime(Token jwt);
-
-
-    /**
-     * 获得用户密码
-     *
-     * @param username
-     * @return
-     */
-    @Select("select password from user where username = #{username}")
-    String getPasswordByUsername(String username);
-
 }

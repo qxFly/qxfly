@@ -22,7 +22,6 @@ public class SiteController {
     @PostMapping("/listsite")
     public Result listSite() {
         List<Site> siteList = siteService.listSites();
-        log.info("列出网站列表...");
         return Result.success(siteList);
     }
 

@@ -24,22 +24,21 @@ public class RegisterController {
      * @return
      */
     @PostMapping("/register")
-    public Result register(@RequestBody Map<String,Object>map) {
-        String username = (String) map.get("username");
-        String password = (String) map.get("password");
+    public Result register(@RequestBody Map<String, Object> map) {
         String invite = (String) map.get("invite");
-        User user = new User(username,password);
-        log.info("User:{}; invite:{}",user,invite);
-        if(registerService.checkUserName(user) != null){
-            return Result.error("用户已注册!");
-        }else{
-            if(invite.equals("qxfly")){
-                registerService.register(user);
-                return Result.success("注册成功！");
-            }else {
-                return Result.error("邀请码错误！");
+        if (invite.equals("qxfly")) {
+            String username = (String) map.get("username");
+            String password = (String) map.get("password");
+            User user = new User(username, password);
+            if (registerService.checkUserName(user) != null) {
+                return Result.error("用户已注册!");
             }
+            registerService.register(user);
+            return Result.success("注册成功！");
+        } else {
+            return Result.error("邀请码错误！");
         }
+
     }
 }
 

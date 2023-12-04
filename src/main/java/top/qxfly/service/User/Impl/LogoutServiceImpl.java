@@ -28,4 +28,9 @@ public class LogoutServiceImpl implements LogoutService {
         logoutMapper.deleteToken(token);
     }
 
+    @Override
+    public String getLogoutStatus(String token) {
+        return logoutMapper.getLogoutStatusByToken(token);
+    }
+
 }

@@ -27,8 +27,6 @@ public class WordsController {
      */
     @PostMapping("/addWord")
     public Result addWord(@RequestBody Word word) {
-        log.info("word:{};type1:{};ZhCn1:{}", word.getWord(), word.getType1(), word.getZhcn1());
-
         if (word.getWord().equals("") || word.getType1().equals("") || word.getZhcn1().equals("")) {
             return Result.error("请输入必填项！！");
         } else {

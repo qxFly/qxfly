@@ -27,10 +27,9 @@ public class UserInfoController {
             return Result.error("验证失败");
         }
 
-        String userToken = userInfoService.getUserByToken(token.getToken());
-        log.info("****************userToken:{}",userToken);
-        if (userToken != null) {
-            return Result.success(userToken);
+        String username = userInfoService.getUserByToken(token.getToken());
+        if (username != null) {
+            return Result.success(username);
         } else {
             return Result.error("未登录");
         }

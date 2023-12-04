@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -11,12 +12,15 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 import top.qxfly.pojo.Result;
+import top.qxfly.service.User.LogoutService;
 import top.qxfly.utils.JwtUtils;
 
 @CrossOrigin
 @Slf4j
 @Component
 public class LoginCheckInterceptor implements HandlerInterceptor {
+    @Autowired
+    LogoutService logoutService;
 
     //目标资源方法运行前运行，返回true:放行，返回false:不放行
     @Override
@@ -56,6 +60,9 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         //解析token，解析失败，返回错误结果（未登录）
         try {
             JwtUtils.parseJWT(token);
+            /*查询用户是否退出，返回错误结果*/
+            String username = logoutService.getLogoutStatus(token);
+            if (username != null) return false;
         } catch (Exception e) {
             e.printStackTrace();
             log.info("解析证书失败，未登录");
