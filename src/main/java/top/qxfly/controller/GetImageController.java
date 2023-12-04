@@ -45,7 +45,7 @@ public class GetImageController {
         try {
             URL reqUrl = new URL("https://api.github.com/repos/qxFly/qxfly-image/git/trees/main?recursive=1");
             con = (HttpURLConnection) reqUrl.openConnection();
-            con.setRequestProperty("Authorization","token " + "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");
+            con.setRequestProperty("Authorization","token " + "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");
             con.connect();
             int responseCode = con.getResponseCode();
             if (responseCode != 200) {
