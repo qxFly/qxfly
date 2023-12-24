@@ -26,7 +26,9 @@ public class RegisterController {
     @PostMapping("/register")
     public Result register(@RequestBody Map<String, Object> map) {
         String invite = (String) map.get("invite");
-        if (invite.equals("qxfly")) {
+        String SysInvite = System.getProperty("Invite");
+        log.info("SysInvite:{}",SysInvite);
+        if (invite.equals(SysInvite)) {
             String username = (String) map.get("username");
             String password = (String) map.get("password");
             User user = new User(username, password);

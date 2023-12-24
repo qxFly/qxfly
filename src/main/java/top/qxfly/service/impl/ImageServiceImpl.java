@@ -1,11 +1,13 @@
-package top.qxfly.controller;
+package top.qxfly.service.impl;
 
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import top.qxfly.mapper.ImageMapper;
+import top.qxfly.pojo.Image;
 import top.qxfly.pojo.Result;
+import top.qxfly.service.ImageService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,38 +17,31 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 @Slf4j
-@RestController
-@CrossOrigin
-public class GetImageController {
-    //    @GetMapping("/getimage")
-//    public Result getImageController(){
-//        String path = System.getProperty("user.dir");
-//        List<String> nameList = new ArrayList<>();
-//        String name;
-//        try (BufferedReader bf = new BufferedReader(new FileReader(path+ "/imageName1.txt"))) {
-//            while ((name = bf.readLine()) != null) {
-//                nameList.add(name);
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        Random random = new Random();
-//        String getName = nameList.get(random.nextInt(nameList.size()));
-//        String url = "https://gcore.jsdelivr.net/gh/qxFly/qxfly-image/api/" + getName;
-//        return Result.success(url);
-//    }
-    @GetMapping("/getimage")
-    public Result getImageController() {
+@Service
+public class ImageServiceImpl implements ImageService {
+    @Autowired
+    ImageMapper imageMapper;
+
+    /**
+     * 更新图库
+     *
+     * @return
+     */
+    @Override
+    public Result updateImage() {
         HttpURLConnection con;
         try {
             URL reqUrl = new URL("https://api.github.com/repos/qxFly/qxfly-image/git/trees/main?recursive=1");
             con = (HttpURLConnection) reqUrl.openConnection();
-            con.setRequestProperty("Authorization","token " + "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");
+            /*获取 GitHub Api*/
+            String githubAPI = System.getProperty("GithubAPI");
+            if (!githubAPI.isBlank()) {
+                con.setRequestProperty("Authorization", "token " + githubAPI);
+            }
             con.connect();
+            /*判断连接是否成功*/
             int responseCode = con.getResponseCode();
             if (responseCode != 200) {
                 return Result.error("接口请求失败，" + responseCode + "错误！");
@@ -61,14 +56,24 @@ public class GetImageController {
                 Map map = (Map) JSON.parse(line);
                 List tree = (List) map.get("tree");
                 List<String> names = new ArrayList<>();
+                int iflag = 0;
                 for (int i = 1; i < tree.size(); i++) {
                     Map map1 = (Map) tree.get(i);
                     String a = (String) map1.get("path");
-                    names.add(a.split("/")[1]);
+                    String name = a.split("/")[1];
+                    /* 查询数据库是否有相同名字的图片 */
+                    Integer imgId = imageMapper.getIdByName(name);
+                    /* 没有则添加新图片 */
+                    if (imgId == null) {
+                        String url = "https://fastly.jsdelivr.net/gh/qxFly/qxfly-image/api/" + name;
+                        int flag = imageMapper.addImage(name, url);
+                        if (flag == 0) {
+                            iflag++;
+                            names.add(url);
+                        }
+                    }
                 }
-                Random random = new Random();
-                String resUrl = "https://gcore.jsdelivr.net/gh/qxFly/qxfly-image/api/" + names.get(random.nextInt(names.size()));
-                return Result.success(resUrl);
+                return Result.success(String.valueOf(iflag), names);
             } else {
                 return Result.error("名称列表为空！");
             }
@@ -76,6 +81,16 @@ public class GetImageController {
             e.printStackTrace();
             return Result.error("名称列表读取错误！");
         }
-
     }
+
+    /**
+     * 获取所有图片
+     *
+     * @return
+     */
+    @Override
+    public List<Image> getAllImage() {
+        return imageMapper.getAllImage();
+    }
+
 }

@@ -15,7 +15,7 @@ public interface WordMapper {
      *
      * @param word
      */
-    @Insert("insert into words(word,type1,zhcn1,type2,zhcn2,type3,zhcn3,type4,zhcn4)value(#{word},#{type1},#{zhcn1},#{type2},#{zhcn2},#{type3},#{zhcn3},#{type4},#{zhcn4})")
+    @Insert("insert into words(word,type1,zhcn1,type2,zhcn2,type3,zhcn3,type4,zhcn4)values(#{word},#{type1},#{zhcn1},#{type2},#{zhcn2},#{type3},#{zhcn3},#{type4},#{zhcn4})")
     void addWord(Word word);
 
     /**
