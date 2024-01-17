@@ -1,6 +1,6 @@
 package top.qxfly.service;
 
-import top.qxfly.pojo.Site;
+import top.qxfly.entity.Site;
 
 import java.util.List;
 

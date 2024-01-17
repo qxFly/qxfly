@@ -1,19 +1,22 @@
 package top.qxfly.controller.Admin;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import top.qxfly.entity.User;
 import top.qxfly.pojo.PageBean;
 import top.qxfly.pojo.Result;
-import top.qxfly.pojo.User;
 import top.qxfly.service.Admin.UserPageService;
 
 @Slf4j
 @RestController
 @RequestMapping("/manage")
+@Tag(name = "管理员")
 public class UserPageController {
     @Autowired
     private UserPageService userPageService;
@@ -25,6 +28,7 @@ public class UserPageController {
      * @param pageSize
      * @return
      */
+    @Operation(description = "分页查询用户数据", summary = "分页查询用户数据")
     @GetMapping("/getUsersByPage")
     public Result getUsersByPage(@RequestParam int currPage, @RequestParam int pageSize) {
         PageBean<User> pageBean = userPageService.getUsersByPage(currPage, pageSize);
@@ -38,6 +42,7 @@ public class UserPageController {
      * @param username
      * @return
      */
+    @Operation(description = "搜索用户", summary = "搜索用户")
     @GetMapping("/searchUser")
     public Result searchUser(@RequestParam int currPage, @RequestParam int pageSize, @RequestParam Integer id, @RequestParam String username) {
         if (id != 0) {
@@ -55,6 +60,7 @@ public class UserPageController {
      * @param id
      * @return
      */
+    @Operation(description = "删除用户", summary = "删除用户")
     @GetMapping("/deleteUser")
     public Result deleteUser(@RequestParam Integer id) {
         boolean flag = userPageService.deleteUserById(id);
@@ -76,6 +82,7 @@ public class UserPageController {
      * @param phone
      * @return
      */
+    @Operation(description = "更改用户信息", summary = "更改用户信息")
     @GetMapping("/changeUserInfo")
     public Result changeUserInfo(@RequestParam Integer id,
                                  @RequestParam String userName,

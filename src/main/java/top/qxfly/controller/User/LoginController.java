@@ -1,20 +1,21 @@
 package top.qxfly.controller.User;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import top.qxfly.entity.Token;
+import top.qxfly.entity.User;
 import top.qxfly.pojo.Result;
-import top.qxfly.pojo.Token;
-import top.qxfly.pojo.User;
 import top.qxfly.service.User.LoginService;
 import top.qxfly.service.User.LogoutService;
 import top.qxfly.utils.JwtUtils;
 
 import java.util.Date;
-
 
 /**
  * 登入Controller
@@ -22,11 +23,16 @@ import java.util.Date;
 @Slf4j
 @CrossOrigin
 @RestController
+@Tag(name = "用户")
 public class LoginController {
-    @Autowired
-    private LoginService loginService;
-    @Autowired
-    private LogoutService logoutService;
+    @Resource
+    private final LoginService loginService;
+    private final LogoutService logoutService;
+
+    public LoginController(LoginService loginService, LogoutService logoutService) {
+        this.loginService = loginService;
+        this.logoutService = logoutService;
+    }
 
     /**
      * 登陆
@@ -34,14 +40,17 @@ public class LoginController {
      * @param user
      * @return
      */
+    @Operation(description = "登陆", summary = "登陆")
     @PostMapping("/login")
     public Result Login(@RequestBody User user) {
         User u = loginService.login(user);
         if (u != null) {
             /*获取用户的token*/
             Token userToken = loginService.getTokenByUser(user);
+
             /*token不为空*/
             if (userToken != null && userToken.getToken() != null) {
+                userToken.setUsername(user.getUsername());
                 try {
                     /*验证Token是否有效*/
                     JwtUtils.parseJWT(userToken.getToken());
@@ -66,12 +75,14 @@ public class LoginController {
         }
         return Result.error("用户名或密码错误");
     }
+
     /**
      * 更新登入状态
      *
      * @param token
      * @return
      */
+    @Operation(description = "每次进入站点检查更新登入状态", summary = "更新登入状态")
     @PostMapping("/updateLoginStatue")
     public Result updateLoginStatue(@RequestBody Token token) {
         /* 检查token有效性 */

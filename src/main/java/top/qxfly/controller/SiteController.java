@@ -1,13 +1,14 @@
 package top.qxfly.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import top.qxfly.entity.Site;
 import top.qxfly.pojo.Result;
-import top.qxfly.pojo.Site;
 import top.qxfly.service.SiteService;
 
 import java.util.List;
@@ -15,39 +16,35 @@ import java.util.List;
 @Slf4j
 @CrossOrigin
 @RestController
+@Tag(name = "右侧栏站点列表")
 public class SiteController {
-    @Autowired
-    private SiteService siteService;
+    private final SiteService siteService;
 
-    @PostMapping("/listsite")
+    public SiteController(SiteService siteService) {
+        this.siteService = siteService;
+    }
+
+    @Operation(description = "列出站点", summary = "列出站点")
+    @PostMapping("/listSite")
     public Result listSite() {
         List<Site> siteList = siteService.listSites();
         return Result.success(siteList);
     }
 
-    @PostMapping("/addsite")
-    public Result addSite(@RequestBody Site site){
+    @Operation(description = "添加站点", summary = "添加站点")
+    @PostMapping("/addSite")
+    public Result addSite(@RequestBody Site site) {
         String address = site.getAddress().toLowerCase();
-        if (address.contains("https://") || address.contains("http://")){
-            boolean flag = siteService.addSite(site);
-            if (flag){
-                return Result.success("添加成功");
-            }else{
-                return Result.error("添加失败");
-            }
-        }else{
+        if (address.contains("https://") || address.contains("http://")) {
+            return siteService.addSite(site) ? Result.success("添加成功") : Result.error("添加失败");
+        } else {
             return Result.error("添加失败，请加上 https:// 或 http://");
         }
     }
 
-    @PostMapping("/deletesite")
-    public Result deleteSite(@RequestBody Site site){
-        boolean flag =  siteService.deleteSite(site);
-        if (flag){
-            return Result.success("删除成功！");
-        }else {
-            return Result.error("删除失败");
-        }
-
+    @Operation(description = "删除站点", summary = "删除站点")
+    @PostMapping("/deleteSite")
+    public Result deleteSite(@RequestBody Site site) {
+        return siteService.deleteSite(site) ? Result.success("删除成功！") : Result.error("删除失败");
     }
 }

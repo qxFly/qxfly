@@ -2,7 +2,7 @@ package top.qxfly.mapper.Admin;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import top.qxfly.pojo.Token;
+import top.qxfly.entity.Token;
 
 @Mapper
 public interface AdminMapper {

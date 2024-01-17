@@ -1,7 +1,7 @@
 package top.qxfly.service.Admin;
 
 import top.qxfly.pojo.PageBean;
-import top.qxfly.pojo.User;
+import top.qxfly.entity.User;
 
 public interface UserPageService {
     /**

@@ -3,7 +3,7 @@ package top.qxfly.mapper.User;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import top.qxfly.pojo.User;
+import top.qxfly.entity.User;
 
 @Mapper
 public interface RegisterMapper {
@@ -24,4 +24,10 @@ public interface RegisterMapper {
      */
     @Select("select username from user where username = #{username}")
     User findUserByUsername(User user);
+
+    @Select("select * from user where username = #{username}")
+    User getUser(User user);
+
+    @Insert("insert into user_card(id, username)VALUES (#{id},#{username})")
+    void createUserInfo(User user1);
 }

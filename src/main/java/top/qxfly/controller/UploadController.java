@@ -1,5 +1,7 @@
 package top.qxfly.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,11 +14,16 @@ import java.io.IOException;
 
 @Slf4j
 @RestController
+@Tag(name = "文件")
 public class UploadController {
 
-    @Autowired
-    private UploadService uploadService;
+    private final UploadService uploadService;
 
+    public UploadController(UploadService uploadService) {
+        this.uploadService = uploadService;
+    }
+
+    @Operation(description = "暂无用处",summary = "上传文件")
     @PostMapping("/upload")
     public Result upload(MultipartFile file) throws IOException {
         if (uploadService.upload(file)) {

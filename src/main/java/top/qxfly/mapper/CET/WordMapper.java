@@ -4,7 +4,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import top.qxfly.pojo.CET.Word;
+import top.qxfly.entity.CET.Word;
 
 import java.util.List;
 

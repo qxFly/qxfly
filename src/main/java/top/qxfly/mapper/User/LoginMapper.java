@@ -1,8 +1,8 @@
 package top.qxfly.mapper.User;
 
 import org.apache.ibatis.annotations.*;
-import top.qxfly.pojo.Token;
-import top.qxfly.pojo.User;
+import top.qxfly.entity.Token;
+import top.qxfly.entity.User;
 
 /**
  * 部门管理

@@ -4,8 +4,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import top.qxfly.pojo.PageBean;
-import top.qxfly.pojo.User;
+import top.qxfly.entity.User;
 
 import java.util.List;
 

@@ -3,7 +3,7 @@ package top.qxfly.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.qxfly.mapper.SiteMapper;
-import top.qxfly.pojo.Site;
+import top.qxfly.entity.Site;
 import top.qxfly.service.SiteService;
 
 import java.util.List;

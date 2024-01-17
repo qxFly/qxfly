@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
+<mapper namespace="top.qxfly.mapper.User.UserInfoMapper">
+    <update id="updateUserInfo" parameterType="top.qxfly.entity.User">
+        update user
+        <set>
+            <if test="username != null">
+                username = #{username},
+            </if>
+            <if test="password != null &amp;&amp; password != ''">
+                password = #{password},
+            </if>
+            <if test="email != null">
+                email = #{email},
+            </if>
+            <if test="phone != null">
+                phone = #{phone},
+            </if>
+            <if test="introduction != null">
+                introduction = #{introduction},
+            </if>
+            <if test="location != null">
+                location = #{location},
+            </if>
+            <if test="avatar != null">
+                avatar = #{avatar},
+            </if>
+            <if test="birthday != null">
+                birthday = #{birthday}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <select id="getArticleCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM `article` a
+        <if test="token != null">
+            , `user_token` ut
+        </if>
+        <where>
+            <if test="token != null">
+                a.author = ut.username AND ut.token = #{token}
+            </if>
+        </where>
+        <where>
+            <if test="id != null">
+                a.authorId = #{id}
+            </if>
+        </where>
+    </select>
+    <select id="getLike" resultType="java.lang.Integer">
+        SELECT SUM(a.likes) FROM `article` a
+        <if test="token != null">
+            , `user_token` ut
+        </if>
+        <where>
+            <if test="token != null">
+                a.author = ut.username AND ut.token = #{token}
+            </if>
+        </where>
+        <where>
+            <if test="id != null">
+                a.authorId = #{id}
+            </if>
+        </where>
+    </select>
+    <select id="getUserInfoByToken" resultType="top.qxfly.entity.User">
+        SELECT u.* ,uc.Articles, uc.Tags, uc.Likes FROM
+        <if test="token != null &amp;&amp; id == null">
+            user_token ut, user u join user_card uc on uc.id = u.id WHERE
+            ut.username = u.username AND ut.token = #{token}
+        </if>
+        <if test="id != null">
+            user u join user_card uc on uc.id = u.id WHERE
+            u.id = #{id}
+        </if>
+
+    </select>
+</mapper>

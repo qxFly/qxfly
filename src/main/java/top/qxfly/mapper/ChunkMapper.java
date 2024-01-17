@@ -1,7 +1,7 @@
 package top.qxfly.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import top.qxfly.pojo.ChunkPO;
+import top.qxfly.entity.ChunkPO;
 
 import java.util.List;
 

@@ -1,17 +1,32 @@
 package top.qxfly.mapper.Admin;
 
 import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
-import top.qxfly.pojo.Image;
-import top.qxfly.pojo.PageBean;
-import top.qxfly.pojo.User;
+import top.qxfly.entity.Image;
 
 import java.util.List;
 
 @Mapper
 public interface ImagePageMapper {
+    /**
+     * 查询数据库是否有相同名字的图片
+     *
+     * @param name
+     * @return
+     */
+    @Select("select id from image where name = #{name}")
+    Integer getIdByName(String name);
+
+    /**
+     * 添加图片
+     *
+     * @param name
+     * @param url
+     */
+    @Insert("insert into image(name, url)values(#{name}, #{url}) ")
+    int addImage(String name, String url);
     /**
      * 分页查询图库
      *

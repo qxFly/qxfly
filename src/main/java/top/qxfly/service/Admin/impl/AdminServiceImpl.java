@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.qxfly.mapper.Admin.AdminMapper;
-import top.qxfly.pojo.Token;
+import top.qxfly.entity.Token;
 import top.qxfly.service.Admin.AdminService;
 
 @Slf4j

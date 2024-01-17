@@ -1,12 +1,13 @@
 package top.qxfly.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import top.qxfly.pojo.FilePO;
-import top.qxfly.pojo.LocalFile;
+import top.qxfly.entity.FilePO;
+import top.qxfly.entity.LocalFile;
 import top.qxfly.pojo.Result;
 import top.qxfly.service.ChunkService;
 import top.qxfly.service.FileService;
@@ -17,6 +18,7 @@ import java.util.*;
 @RestController
 @CrossOrigin
 @Slf4j
+@Tag(name = "文件")
 public class FileController {
 
     @Value("${file.path}")
@@ -24,12 +26,15 @@ public class FileController {
 
     @Value("${download.path}")
     private String downloadPath;
-    @Autowired
-    private FileService fileService;
-    @Autowired
-    private ChunkService chunkService;
+    private final FileService fileService;
+    private final ChunkService chunkService;
 
+    public FileController(FileService fileService, ChunkService chunkService) {
+        this.fileService = fileService;
+        this.chunkService = chunkService;
+    }
 
+    @Operation(description = "检查md5",summary = "检查md5")
     @GetMapping("/check")
     public Result checkFile(@RequestParam("md5") String md5) {
         log.info("检查MD5:" + md5);
@@ -49,6 +54,7 @@ public class FileController {
         return new Result(201, "", data);
     }
 
+    @Operation(description = "分片上传",summary = "分片上传")
     @PostMapping("/upload/chunk")
     public Result uploadChunk(@RequestParam("chunk") MultipartFile chunk,
                               @RequestParam("md5") String md5,
@@ -77,16 +83,23 @@ public class FileController {
 
     }
 
-    //暂无用
+    /**
+     * 下载页文件列表
+     * @return
+     */
+    @Operation(description = "下载页文件列表",summary = "下载页文件列表")
     @GetMapping("/fileList")
     public Result getFileList() {
-        log.info("查询文件列表");
         List<FilePO> fileList = fileService.selectFileList();
-        log.info("fileList:{}", fileList.toString());
         return new Result(201, "文件列表查询成功", fileList);
     }
 
-    @PostMapping("/listfile")
+    /**
+     * 左侧栏文件列表
+     * @return
+     */
+    @Operation(description = "左侧栏文件列表",summary = "左侧栏文件列表")
+    @PostMapping("/listFile")
     public Result listfile() {
         File path = new File(filePath);
         List<LocalFile> list = new ArrayList<>();
@@ -102,7 +115,6 @@ public class FileController {
                 list.add(localFile);
             }
         }
-        log.info("列出文件列表...");
         return Result.success(list);
     }
 
@@ -112,16 +124,13 @@ public class FileController {
      * @param filePO
      * @return
      */
+    @Operation(description = "删除文件",summary = "删除文件")
     @PostMapping("/deleteFile")
     public Result deleteFile(@RequestBody FilePO filePO){
-        log.info("filePO:{}",filePO);
         String[] suffixes = filePO.getName().split("\\.");
         String fileName = filePO.getMd5() + "." + suffixes[suffixes.length -1];
-        log.info("fileName:{}",fileName);
-
         File file = new File(filePath + fileName);
         boolean fileDelete = file.delete();
-        log.info(String.valueOf(file.delete()));
         if(fileDelete){
             fileService.deleteFile(filePO.getMd5());
             return Result.success("删除成功");

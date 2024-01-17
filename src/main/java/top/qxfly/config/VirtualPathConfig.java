@@ -17,7 +17,17 @@ public class VirtualPathConfig implements WebMvcConfigurer {
           addResourceHandler：访问映射路径
           addResourceLocations：资源绝对路径
          */
+        /*资源下载*/
         registry.addResourceHandler("/download/**")
                 .addResourceLocations(filePath);
+        /*用户头像*/
+        registry.addResourceHandler("/userAvatar/**")
+                .addResourceLocations("file:///" + System.getProperty("user.dir") + "/data/qxfly-userAvatar/");
+        /*文章封面*/
+        registry.addResourceHandler("/articleCover/**")
+                .addResourceLocations("file:///" + System.getProperty("user.dir") + "/data/qxfly-articleCover/");
+        /*文章内容图片*/
+        registry.addResourceHandler("/articleImage/**")
+                .addResourceLocations("file:///" + System.getProperty("user.dir") + "/data/qxfly-articleImage/");
     }
 }

@@ -1,11 +1,12 @@
 package top.qxfly.controller.CET;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import top.qxfly.pojo.CET.Word;
+import top.qxfly.entity.CET.Word;
 import top.qxfly.pojo.Result;
 import top.qxfly.service.CET.WordService;
 
@@ -15,9 +16,13 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@Tag(name = "单词")
 public class WordsController {
-    @Autowired
-    private WordService wordService;
+    private final WordService wordService;
+
+    public WordsController(WordService wordService) {
+        this.wordService = wordService;
+    }
 
     /**
      * 添加单词
@@ -25,6 +30,7 @@ public class WordsController {
      * @param word
      * @return
      */
+    @Operation(description = "添加单词", summary = "添加单词")
     @PostMapping("/addWord")
     public Result addWord(@RequestBody Word word) {
         if (word.getWord().equals("") || word.getType1().equals("") || word.getZhcn1().equals("")) {
@@ -46,6 +52,7 @@ public class WordsController {
      * @param word
      * @return
      */
+    @Operation(description = "删除单词", summary = "删除单词")
     @PostMapping("/deleteWord")
     public Result deleteWord(@RequestBody Word word) {
         log.info("word:{}", word.getWord());
@@ -66,9 +73,9 @@ public class WordsController {
     /**
      * 列出所有单词
      *
-     * @param
      * @return
      */
+    @Operation(description = "列出所有单词", summary = "列出所有单词")
     @PostMapping("/listWord")
     public Result listWord() {
         List<Word> wordList = wordService.listWords();
@@ -82,6 +89,7 @@ public class WordsController {
      * @param word
      * @return
      */
+    @Operation(description = "精确搜索单词", summary = "精确搜索单词")
     @PostMapping("/searchWord")
     public Result searchWord(@RequestBody Word word) {
         log.info("word:{}", word.getWord());
@@ -115,6 +123,7 @@ public class WordsController {
      * @param word
      * @return
      */
+    @Operation(description = "模糊搜索单词", summary = "模糊搜索单词")
     @PostMapping("/likeSearchWord")
     public Result likeSearchWord(@RequestBody Word word) {
         log.info("word:{}", word.getWord());
@@ -126,7 +135,7 @@ public class WordsController {
             Word word1 = new Word(word.getWord().replace(" ", "")); // 去除多余空格
             if (!wordService.findLikeWord(word1).isEmpty()) {
                 return Result.success(wordService.findLikeWord(word1));
-            }else {
+            } else {
                 return Result.error("没有匹配到单词！！");
             }
 

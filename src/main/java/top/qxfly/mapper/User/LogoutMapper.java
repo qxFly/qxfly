@@ -1,7 +1,7 @@
 package top.qxfly.mapper.User;
 
 import org.apache.ibatis.annotations.*;
-import top.qxfly.pojo.Token;
+import top.qxfly.entity.Token;
 
 @Mapper
 public interface LogoutMapper {
@@ -16,10 +16,10 @@ public interface LogoutMapper {
     /**
      * 删除token
      *
-     * @param jwt
+     * @param token
      */
-    @Delete("delete from logout_users where token = #{token}")
-    void deleteToken(Token jwt);
+    @Delete("delete from logout_users where username = #{username}")
+    void deleteToken(Token token);
 
     /**
      * 获取退出状态信息

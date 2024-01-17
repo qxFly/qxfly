@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.qxfly.mapper.CET.WordMapper;
-import top.qxfly.pojo.CET.Word;
+import top.qxfly.entity.CET.Word;
 import top.qxfly.service.CET.WordService;
 
 import java.util.List;

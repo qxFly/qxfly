@@ -1,7 +1,9 @@
 package top.qxfly.service.User;
 
-import top.qxfly.pojo.Token;
-import top.qxfly.pojo.User;
+import org.springframework.web.multipart.MultipartFile;
+import top.qxfly.entity.Token;
+import top.qxfly.entity.User;
+import top.qxfly.pojo.Result;
 
 public interface UserInfoService {
     /**
@@ -10,5 +12,37 @@ public interface UserInfoService {
      * @param token
      * @return
      */
-    String getUserByToken(String token);
+    User getUserInfoByToken(Token token);
+
+    /**
+     * 更改用户信息
+     *
+     * @param user
+     * @return
+     */
+    boolean updateUserInfo(User user);
+
+    /**
+     * 检查用户名是否可行
+     *
+     * @param user
+     * @return
+     */
+    User checkUsername(User user);
+
+    /**
+     * 头像上传
+     *
+     * @param file
+     * @return
+     */
+    Result updateAvatar(MultipartFile file, Token token);
+
+    /**
+     * 刷新用户信息
+     *
+     * @param token
+     * @return
+     */
+    boolean refreshUserInfo(Token token);
 }

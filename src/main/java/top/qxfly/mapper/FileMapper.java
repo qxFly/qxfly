@@ -2,7 +2,7 @@ package top.qxfly.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import top.qxfly.pojo.FilePO;
+import top.qxfly.entity.FilePO;
 
 import java.util.List;
 

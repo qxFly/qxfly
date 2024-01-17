@@ -1,6 +1,6 @@
 package top.qxfly.service.CET;
 
-import top.qxfly.pojo.CET.Word;
+import top.qxfly.entity.CET.Word;
 
 import java.util.List;
 

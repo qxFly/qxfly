@@ -1,4 +1,4 @@
-package top.qxfly.pojo;
+package top.qxfly.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

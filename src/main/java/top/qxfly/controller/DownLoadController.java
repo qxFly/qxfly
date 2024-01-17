@@ -1,5 +1,6 @@
 package top.qxfly.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +20,26 @@ import java.util.Objects;
 @Controller
 @CrossOrigin
 @Slf4j
+@Tag(name = "文件")
 public class DownLoadController {
     @Value("${file.path}")
     private String filePath;
 
-    @Autowired
-    private ChunkService chunkService;
+    private final ChunkService chunkService;
 
+    public DownLoadController(ChunkService chunkService) {
+        this.chunkService = chunkService;
+    }
+
+    /**
+     * 下载页下载
+     * @param md5
+     * @param fileName
+     * @param chunkSize
+     * @param chunkTotal
+     * @param index
+     * @param response
+     */
     @PostMapping("/download")
     public void download(@RequestParam("md5") String md5,
                          @RequestParam("fileName") String fileName,
@@ -63,10 +77,7 @@ public class DownLoadController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
-
 
     @PostMapping("/downloadtest")
     public void download(String fileName, HttpServletResponse response) {

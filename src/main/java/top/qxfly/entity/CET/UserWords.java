@@ -1,4 +1,4 @@
-package top.qxfly.pojo.CET;
+package top.qxfly.entity.CET;
 
 public class UserWords {
     private String username;

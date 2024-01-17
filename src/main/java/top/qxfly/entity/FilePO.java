@@ -1,4 +1,4 @@
-package top.qxfly.pojo;
+package top.qxfly.entity;
 
 public class FilePO {
     private Integer fileId;

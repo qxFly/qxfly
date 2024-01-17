@@ -1,9 +1,17 @@
 package top.qxfly.service.Admin;
 
-import top.qxfly.pojo.Image;
+import top.qxfly.entity.Image;
 import top.qxfly.pojo.PageBean;
+import top.qxfly.pojo.Result;
 
 public interface ImagePageService {
+    /**
+     * 更新图库
+     *
+     * @return
+     */
+    Result updateImage();
+
     /**
      * 分页查询图库
      *

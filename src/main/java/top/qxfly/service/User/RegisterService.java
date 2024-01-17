@@ -1,6 +1,6 @@
 package top.qxfly.service.User;
 
-import top.qxfly.pojo.User;
+import top.qxfly.entity.User;
 
 public interface RegisterService {
 
@@ -18,4 +18,17 @@ public interface RegisterService {
      * @return
      */
     User checkUserName(User user);
+
+    /**
+     * 获取用户
+     * @param user
+     * @return
+     */
+    User getUser(User user);
+
+    /**
+     * 创建用户信息
+     * @param user1
+     */
+    void createUserInfo(User user1);
 }

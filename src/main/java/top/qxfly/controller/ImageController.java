@@ -1,12 +1,13 @@
 package top.qxfly.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import top.qxfly.pojo.Image;
+import top.qxfly.entity.Image;
 import top.qxfly.pojo.Result;
 import top.qxfly.service.ImageService;
 
@@ -17,21 +18,14 @@ import java.util.Random;
 @Slf4j
 @RestController
 @CrossOrigin
+@Tag(name = "图库")
 public class ImageController {
 
-    @Autowired
-    ImageService imageService;
+    private final ImageService imageService;
 
-    /**
-     * 更新图库
-     *
-     * @return
-     */
-    @GetMapping("/updateImage")
-    public Result updateImage() {
-        return imageService.updateImage();
+    public ImageController(ImageService imageService) {
+        this.imageService = imageService;
     }
-
 
     /**
      * 获取图片
@@ -43,8 +37,9 @@ public class ImageController {
     List<Image> listCache = new ArrayList<>();
     int cacheUsage = 0;
 
-    @GetMapping("/getimage")
-    public Result getImageController(@RequestParam int count) {
+    @Operation(description = "获取图片，可传入数量",summary = "获取图片")
+    @GetMapping("/getImage")
+    public Result getImage(@RequestParam int count) {
         List<Image> imageList;
         /* 查看是否有缓存，如果缓存使用次数大于1000次更新图库 */
         if (listCache == null || listCache.isEmpty() || cacheUsage > 1000) {

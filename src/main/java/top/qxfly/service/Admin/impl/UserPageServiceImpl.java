@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.qxfly.mapper.Admin.UserPageMapper;
 import top.qxfly.pojo.PageBean;
-import top.qxfly.pojo.User;
+import top.qxfly.entity.User;
 import top.qxfly.service.Admin.UserPageService;
 
 import java.util.List;

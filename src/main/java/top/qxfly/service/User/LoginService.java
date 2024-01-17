@@ -1,7 +1,7 @@
 package top.qxfly.service.User;
 
-import top.qxfly.pojo.Token;
-import top.qxfly.pojo.User;
+import top.qxfly.entity.Token;
+import top.qxfly.entity.User;
 
 public interface LoginService {
     /**

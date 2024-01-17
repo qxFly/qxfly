@@ -1,6 +1,6 @@
 package top.qxfly.service.User;
 
-import top.qxfly.pojo.Token;
+import top.qxfly.entity.Token;
 
 public interface LogoutService {
     /**
