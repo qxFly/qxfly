@@ -1,4 +1,4 @@
-package top.qxfly.entity;
+package top.qxfly.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -11,14 +11,12 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "用户实体类")
-public class User {
+@Schema(description = "用户实体类VO")
+public class UserVO {
     @Schema(description = "用户id")
     private Integer id;
     @Schema(description = "用户名")
     private String username;
-    @Schema(description = "密码")
-    private String password;
     @Schema(description = "邮箱")
     private String email;
     @Schema(description = "手机")
@@ -32,19 +30,10 @@ public class User {
     @Schema(description = "生日")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
-    @Schema(description = "角色")
-    private String role;
     @Schema(description = "文章数")
     private String Articles;
     @Schema(description = "标签数")
     private String Tags;
     @Schema(description = "点赞数")
     private String Likes;
-    @Schema(description = "盐值")
-    private String salt;
-    public User(String username, String password,String phone) {
-        this.username = username;
-        this.password = password;
-        this.phone = phone;
-    }
 }

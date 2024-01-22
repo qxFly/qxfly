@@ -13,7 +13,7 @@ public interface RegisterMapper {
      *
      * @param user
      */
-    @Insert("insert into user(username,password)values(#{username},#{password})")
+    @Insert("insert into user(username,password,phone)values(#{username},#{password},#{phone})")
     void register(User user);
 
     /**

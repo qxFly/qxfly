@@ -1,4 +1,4 @@
-package top.qxfly.entity;
+package top.qxfly.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,8 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Schema(description = "文章实体类")
-public class Article {
+@Schema(description = "文章实体类VO")
+public class ArticleVO {
     @Schema(description = "文章id")
     private Integer id;
     @Schema(description = "文章标题")
@@ -36,6 +36,4 @@ public class Article {
     private String author;
     @Schema(description = "封面")
     private String cover;
-    @Schema(description = "是否审核")
-    private Integer verify;
 }

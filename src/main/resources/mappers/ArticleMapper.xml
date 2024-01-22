@@ -31,6 +31,25 @@
                 and a.title like concat('%',#{searchData},'%')
             </if>
         </where>
-        order by a.createTime desc limit #{start}, #{pageSize}
+        <if test="sort == 'new'">
+            order by a.createTime desc
+        </if>
+        <if test="sort == 'hot'">
+            order by a.views desc
+        </if>
+        <if test="sort == 'likes'">
+            order by a.likes desc
+        </if>
+        limit #{start}, #{pageSize}
+    </select>
+    <select id="getArticleCommentsByPage" resultType="top.qxfly.entity.Comment">
+        select c.*,u.avatar from comment c join `user` u on u.id = c.userId where articleId = #{id} and parentCommentId = 0
+        <if test="sort == 'new'">
+            order by c.createTime desc
+        </if>
+        <if test="sort == 'hot'">
+            order by c.likes desc
+        </if>
+        limit #{start}, #{pageSize}
     </select>
 </mapper>

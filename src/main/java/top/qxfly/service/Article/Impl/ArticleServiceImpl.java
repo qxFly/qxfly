@@ -1,19 +1,23 @@
 package top.qxfly.service.Article.Impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import top.qxfly.entity.Article;
+import top.qxfly.entity.Comment;
 import top.qxfly.mapper.Article.ArticleMapper;
 import top.qxfly.pojo.PageBean;
 import top.qxfly.pojo.Result;
 import top.qxfly.service.Article.ArticleService;
+import top.qxfly.vo.ArticleVO;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,11 +54,17 @@ public class ArticleServiceImpl implements ArticleService {
      * @return
      */
     @Override
-    public PageBean<Article> getArticlesByPage(int currPage, int pageSize, String searchData, String token) {
+    public PageBean<ArticleVO> getArticlesByPage(int currPage, int pageSize, String searchData, String sort, String token) {
         int count = articleMapper.getArticleCount(searchData, token);
-        PageBean<Article> pageBean = new PageBean<>(currPage, pageSize, count);
-        List<Article> articleList = articleMapper.getArticlesByPage(pageBean.getStart(), pageSize, searchData, token);
-        pageBean.setData(articleList);
+        PageBean<ArticleVO> pageBean = new PageBean<>(currPage, pageSize, count);
+        List<Article> articleList = articleMapper.getArticlesByPage(pageBean.getStart(), pageSize, searchData, sort, token);
+        List<ArticleVO> articleVOList = new ArrayList<>();
+        for (Article article : articleList) {
+            ArticleVO articleVO = new ArticleVO();
+            BeanUtils.copyProperties(article, articleVO);
+            articleVOList.add(articleVO);
+        }
+        pageBean.setData(articleVOList);
         return pageBean;
     }
 
@@ -168,5 +178,32 @@ public class ArticleServiceImpl implements ArticleService {
         return articleMapper.editArticle(article);
     }
 
+    /**
+     * 根据文章id获取评论
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public PageBean<Comment> getArticleCommentsByPage(int currPage, int pageSize, String sort, int id) {
+        int count = articleMapper.getArticleCommentsCount(id);
+        PageBean<Comment> pageBean = new PageBean<>(currPage, pageSize, count);
+        List<Comment> comments = articleMapper.getArticleCommentsByPage(pageBean.getStart(), pageSize, sort, id);
+        for (Comment comment : comments) {
+            List<Comment> child = articleMapper.getChildCommentByCommentId(comment.getId());
+            comment.setChildComment(child);
+        }
+        pageBean.setData(comments);
+        return pageBean;
+    }
 
+    /**
+     * 发布评论
+     * @param comment
+     * @return
+     */
+    @Override
+    public boolean releaseComment(Comment comment) {
+        return articleMapper.releaseComment(comment);
+    }
 }

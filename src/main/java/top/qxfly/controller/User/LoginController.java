@@ -43,20 +43,26 @@ public class LoginController {
     @Operation(description = "登陆", summary = "登陆")
     @PostMapping("/login")
     public Result Login(@RequestBody User user) {
+        boolean matches = user.getUsername().matches("^[0-9]*$");
+        log.info("matches:{}", matches);
+        if (matches) {
+            user.setPhone(user.getUsername());
+        }
         User u = loginService.login(user);
+        log.info("u:{}", u);
         if (u != null) {
             /*获取用户的token*/
-            Token userToken = loginService.getTokenByUser(user);
+            Token userToken = loginService.getTokenByUser(u);
 
             /*token不为空*/
             if (userToken != null && userToken.getToken() != null) {
-                userToken.setUsername(user.getUsername());
+                userToken.setUsername(u.getUsername());
                 try {
                     /*验证Token是否有效*/
                     JwtUtils.parseJWT(userToken.getToken());
                     /* token有效，登入*/
                     logoutService.deleteToken(userToken);
-                    return Result.success(userToken.getToken());
+                    return Result.success(u.getUsername(), userToken.getToken());
                 } catch (Exception e) {
                     e.printStackTrace();
                     loginService.deleteToken(userToken);
@@ -68,10 +74,10 @@ public class LoginController {
             Date nowdate = new Date();
             long createDate = nowdate.getTime();
 
-            String newToken = JwtUtils.createToken(user.getUsername(), nowdate);
-            loginService.setToken(user.getUsername(), newToken, createDate);
+            String newToken = JwtUtils.createToken(u.getUsername(), nowdate);
+            loginService.setToken(u.getUsername(), newToken, createDate);
             logoutService.deleteToken(userToken);
-            return Result.success(newToken);
+            return Result.success(u.getUsername(), newToken);
         }
         return Result.error("用户名或密码错误");
     }

@@ -33,17 +33,16 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         //获取请求的url
         String url = req.getRequestURI();
         log.info("请求的url:{}", url);
-
-        //判断是否为 login 或 listfile,如果是放行
-        String[] urlList = {"login", "logout", "register", "listFile", "updateLoginStatue",
-                "download", "fileList", "listWord", "listSite", "getImage", "swagger", "doc",
-                "userAvatar", "getArticles", "getArticleById","articleCover","articleImage","getUserInfo"};
-        for (String s : urlList) {
-            if (url.contains(s)) {
-                log.info("该url无需验证：{}", url);
-                return true;
-            }
-        }
+//        //判断是否为 login 或 listfile,如果是放行
+//        String[] urlList = {"login", "logout", "register", "listFile", "updateLoginStatue",
+//                "download", "fileList", "listWord", "listSite", "getImage", "swagger", "doc",
+//                "userAvatar", "getArticles", "getArticleById","articleCover","articleImage","getUserInfo"};
+//        for (String s : urlList) {
+//            if (url.contains(s)) {
+//                log.info("该url无需验证：{}", url);
+//                return true;
+//            }
+//        }
 
         //获取证书token
         String token = req.getHeader("token");

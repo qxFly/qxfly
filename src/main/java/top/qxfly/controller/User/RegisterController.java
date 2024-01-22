@@ -3,7 +3,6 @@ package top.qxfly.controller.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.juli.logging.Log;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,7 +36,8 @@ public class RegisterController {
         if (invite.equals(SysInvite)) {
             String username = (String) map.get("username");
             String password = (String) map.get("password");
-            User user = new User(username, password);
+            String phone = (String) map.get("phone");
+            User user = new User(username, password, phone);
             if (registerService.checkUserName(user) != null) {
                 return Result.error("用户已注册!");
             }

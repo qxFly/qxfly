@@ -3,6 +3,7 @@ package top.qxfly.controller.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import top.qxfly.entity.User;
 import top.qxfly.pojo.Result;
 import top.qxfly.service.User.UserInfoService;
 import top.qxfly.utils.JwtUtils;
+import top.qxfly.vo.UserVO;
 
 @Slf4j
 @RestController
@@ -47,9 +49,11 @@ public class UserInfoController {
 
             boolean refresh = userInfoService.refreshUserInfo(token);
             User user = userInfoService.getUserInfoByToken(token);
+            UserVO userVO = new UserVO();
+
             if (user != null) {
-                user.setPassword("");
-                return Result.success(user);
+                BeanUtils.copyProperties(user,userVO);
+                return Result.success(userVO);
             } else {
                 return Result.error("没有相关用户信息");
             }

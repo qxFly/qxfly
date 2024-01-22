@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>top.qxfly</groupId>
 	<artifactId>qxfly_springboot</artifactId>
-	<version>bate-1.4.4-CORS</version>
+	<version>bate-1.4.6-CORS</version>
 	<name>qxfly_springboot</name>
 	<description>qxfly_springboot</description>
 	<properties>
@@ -20,6 +20,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<version>3.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mybatis.spring.boot</groupId>

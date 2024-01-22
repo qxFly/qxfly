@@ -5,6 +5,16 @@
 <!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
 <mapper namespace="top.qxfly.mapper.User.LoginMapper">
     <select id="login" resultType="top.qxfly.entity.User">
-        select * from user where username = #{username} and password = #{password}
+        select * from user
+        <where>
+            <if test="phone == null">
+                username = #{username}
+            </if>
+            <if test="phone != null">
+                phone = #{phone}
+            </if>
+            and password = #{password}
+        </where>
+
     </select>
 </mapper>
