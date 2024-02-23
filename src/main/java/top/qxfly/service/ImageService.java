@@ -1,7 +1,6 @@
 package top.qxfly.service;
 
 import top.qxfly.entity.Image;
-import top.qxfly.pojo.Result;
 
 import java.util.List;
 

@@ -3,8 +3,8 @@ package top.qxfly.service.User.Impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import top.qxfly.mapper.User.LogoutMapper;
 import top.qxfly.entity.Token;
+import top.qxfly.mapper.User.LogoutMapper;
 import top.qxfly.service.User.LogoutService;
 
 @Slf4j
