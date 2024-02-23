@@ -1,5 +1,6 @@
 package top.qxfly.controller.User;
 
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -43,13 +44,12 @@ public class LoginController {
     @Operation(description = "登陆", summary = "登陆")
     @PostMapping("/login")
     public Result Login(@RequestBody User user) {
+        /*判断是否为手机号*/
         boolean matches = user.getUsername().matches("^[0-9]*$");
-        log.info("matches:{}", matches);
         if (matches) {
             user.setPhone(user.getUsername());
         }
         User u = loginService.login(user);
-        log.info("u:{}", u);
         if (u != null) {
             /*获取用户的token*/
             Token userToken = loginService.getTokenByUser(u);
@@ -74,7 +74,7 @@ public class LoginController {
             Date nowdate = new Date();
             long createDate = nowdate.getTime();
 
-            String newToken = JwtUtils.createToken(u.getUsername(), nowdate);
+            String newToken = JwtUtils.createToken(u.getId(), u.getUsername(), nowdate, null);
             loginService.setToken(u.getUsername(), newToken, createDate);
             logoutService.deleteToken(userToken);
             return Result.success(u.getUsername(), newToken);
@@ -96,16 +96,25 @@ public class LoginController {
         if (!loginStatue.equals("LOGIN")) return Result.error(loginStatue);
 
         /* 有效则判断剩余时间 */
-        long createTime = loginService.getTokenCreateTime(token);
+        Long createTime = loginService.getTokenCreateTime(token);
+        if (createTime == null) return Result.error("token无效！");
         Date nowTime = new Date();
         long updateTime = nowTime.getTime();
         /*判断证书剩余时间，小于1周则发放新证书*/
         if (updateTime - createTime >= 604800000) {
             log.info("剩余一周，续期");
             /*生成token*/
-            String newToken = JwtUtils.createToken(token.getUsername(), nowTime);
-            loginService.updateToken(token.getUsername(), newToken, updateTime);
-            return Result.success(newToken);
+            try {
+                Claims claims = JwtUtils.parseJWT(token.getToken());
+                Integer userId = (Integer) claims.get("userId");
+                String username = (String) claims.get("username");
+                String newToken = JwtUtils.createToken(userId, username, nowTime, null);
+                loginService.updateToken(token.getUsername(), newToken, updateTime);
+                return Result.success(newToken);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Result.error("token无效！");
+            }
         } else {
             log.info("无需续期");
             return Result.success("ok");

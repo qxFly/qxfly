@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.qxfly.mapper.Admin.AdminMapper;
-import top.qxfly.entity.Token;
 import top.qxfly.service.Admin.AdminService;
 
 @Slf4j
@@ -20,22 +19,8 @@ public class AdminServiceImpl implements AdminService {
      * @return
      */
     @Override
-    public boolean check(String username) {
-        if ("ADMIN".equals(adminMapper.check(username))) {
-            return true;
-        } else {
-            return false;
-        }
+    public Integer check(String username) {
+        return adminMapper.check(username);
     }
 
-    /**
-     * 根据 token 查找 用户
-     *
-     * @param token
-     * @return
-     */
-    @Override
-    public String getUserNameByToken(Token token) {
-        return adminMapper.getUserNameByToken(token);
-    }
 }

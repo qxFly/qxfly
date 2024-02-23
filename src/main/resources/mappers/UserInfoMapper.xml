@@ -2,6 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
 <mapper namespace="top.qxfly.mapper.User.UserInfoMapper">
+    <!--更新用户信息-->
     <update id="updateUserInfo" parameterType="top.qxfly.entity.User">
         update user
         <set>
@@ -32,40 +33,9 @@
         </set>
         where id = #{id}
     </update>
-    <select id="getArticleCount" resultType="java.lang.Integer">
-        SELECT COUNT(*) FROM `article` a
-        <if test="token != null">
-            , `user_token` ut
-        </if>
-        <where>
-            <if test="token != null">
-                a.author = ut.username AND ut.token = #{token}
-            </if>
-        </where>
-        <where>
-            <if test="id != null">
-                a.authorId = #{id}
-            </if>
-        </where>
-    </select>
-    <select id="getLike" resultType="java.lang.Integer">
-        SELECT SUM(a.likes) FROM `article` a
-        <if test="token != null">
-            , `user_token` ut
-        </if>
-        <where>
-            <if test="token != null">
-                a.author = ut.username AND ut.token = #{token}
-            </if>
-        </where>
-        <where>
-            <if test="id != null">
-                a.authorId = #{id}
-            </if>
-        </where>
-    </select>
+    <!--根据token获取用户信息-->
     <select id="getUserInfoByToken" resultType="top.qxfly.entity.User">
-        SELECT u.* ,uc.Articles, uc.Tags, uc.Likes FROM
+        SELECT u.* ,uc.Articles, uc.Tags, uc.Likes, uc.Collection FROM
         <if test="token != null &amp;&amp; id == null">
             user_token ut, user u join user_card uc on uc.id = u.id WHERE
             ut.username = u.username AND ut.token = #{token}
@@ -75,5 +45,27 @@
             u.id = #{id}
         </if>
 
+    </select>
+    <!--获取文章、点赞、收藏、浏览数-->
+    <select id="getArticleCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM `article` a
+        where a.authorId = #{id}
+          and a.verify = 3
+    </select>
+    <select id="getLikeCount" resultType="java.lang.Integer">
+        SELECT SUM(a.likes)
+        FROM `article` a
+        where a.authorId = #{id}
+    </select>
+    <select id="getCollectionCount" resultType="java.lang.Integer">
+        SELECT count(uc.uid)
+        FROM user_collection uc
+        where uc.uid = #{id}
+    </select>
+    <select id="getViewsCount" resultType="java.lang.Integer">
+        SELECT SUM(a.views)
+        FROM `article` a
+        where a.authorId = #{id}
     </select>
 </mapper>

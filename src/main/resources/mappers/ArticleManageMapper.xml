@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
+<mapper namespace="top.qxfly.mapper.Admin.ArticleManageMapper">
+
+    <select id="listArticle" resultType="top.qxfly.entity.Article">
+        select * from article
+        <where>
+            <if test="verify != 0">
+                verify = #{verify}
+            </if>
+        </where>
+    </select>
+    <select id="searchArticle" resultType="top.qxfly.entity.Article">
+        select * from article
+        <where>
+            <if test="articleId != null">
+                and id = #{articleId}
+            </if>
+            <if test="title != null">
+                and title like concat('%', #{title},'%')
+            </if>
+            <if test="author != null">
+                and author like concat('%', #{author},'%')
+            </if>
+            <if test="authorId != null">
+                and authorId = #{authorId}
+            </if>
+            <if test="tag != null">
+                and tag = #{tag}
+            </if>
+            <if test="createTimeStart != null">
+                and createTime between #{createTimeStart} and #{createTimeEnd}
+            </if>
+            <if test="updateTimeStart != null">
+                and updateTime between #{updateTimeStart} and #{updateTimeEnd}
+            </if>
+            <if test="verify != 0">
+                and verify = #{verify}
+            </if>
+        </where>
+    </select>
+</mapper>

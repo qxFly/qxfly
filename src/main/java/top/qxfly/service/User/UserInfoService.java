@@ -1,9 +1,11 @@
 package top.qxfly.service.User;
 
+import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 import top.qxfly.entity.Token;
 import top.qxfly.entity.User;
 import top.qxfly.pojo.Result;
+import top.qxfly.vo.UserVO;
 
 public interface UserInfoService {
     /**
@@ -28,7 +30,7 @@ public interface UserInfoService {
      * @param user
      * @return
      */
-    User checkUsername(User user);
+    User checkUsernameAndCode(User user);
 
     /**
      * 头像上传
@@ -44,5 +46,49 @@ public interface UserInfoService {
      * @param token
      * @return
      */
-    boolean refreshUserInfo(Token token);
+    boolean refreshUserInfoTask(Token token);
+
+    /**
+     * 刷新用户信息
+     *
+     * @return
+     */
+    Integer[] refreshUserInfoTask();
+
+    /**
+     * 获取推荐作者
+     * @param currPage
+     * @param pageSize
+     * @return
+     */
+    PageInfo<UserVO> getSuggestAuthorByPage(Integer currPage, Integer pageSize);
+
+    /**
+     * 找回密码
+     * @param phone
+     * @param password
+     * @param code
+     * @return
+     */
+    Integer resetPassword(String phone, String password, Integer code);
+
+    /**
+     * 发送验证码
+     * @param user
+     * @return
+     */
+    int sendCode(User user);
+
+    /**
+     * 定时清理超时验证码
+     * @return
+     */
+    Integer[] clearCaptchaTask();
+
+    /**
+     *  检测验证码
+     * @param user
+     * @return
+     */
+    int testCode(User user);
 }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
+<mapper namespace="top.qxfly.mapper.Admin.UserManageMapper">
+    <select id="listUser" resultType="top.qxfly.entity.User">
+        select * from user
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="username != null &amp;&amp; username != ''">
+                and username like concat('%',#{username},'%')
+            </if>
+            <if test="email != null &amp;&amp; email != ''">
+                and email like concat('%',#{email},'%')
+            </if>
+            <if test="phone != null &amp;&amp; phone != ''">
+                and phone like concat('%',#{phone},'%')
+            </if>
+            <if test="introduction != null &amp;&amp; introduction != ''">
+                and introduction like concat('%',#{introduction},'%')
+            </if>
+            <if test="location != null &amp;&amp; location != ''">
+                and location like concat('%',#{location},'%')
+            </if>
+            <if test="role != null &amp;&amp; role != ''">
+                and role = #{role}
+            </if>
+        </where>
+    </select>
+</mapper>

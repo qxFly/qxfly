@@ -1,5 +1,7 @@
 package top.qxfly.controller.Article;
 
+import com.github.pagehelper.PageInfo;
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,14 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import top.qxfly.entity.Article;
-import top.qxfly.entity.Comment;
-import top.qxfly.entity.Token;
-import top.qxfly.entity.User;
+import top.qxfly.entity.*;
 import top.qxfly.pojo.PageBean;
 import top.qxfly.pojo.Result;
 import top.qxfly.service.Article.ArticleService;
 import top.qxfly.service.User.UserInfoService;
+import top.qxfly.utils.JwtUtils;
 import top.qxfly.vo.ArticleVO;
 
 import java.util.Date;
@@ -64,12 +64,17 @@ public class ArticleController {
     @Operation(description = "编辑文章", summary = "编辑文章")
     public Result editArticle(@RequestBody Article article) {
         article.setUpdateTime(new Date());
+        article.setVerify(1);
         Article article1 = articleService.getArticleById(article.getId());
-        boolean delcover = articleService.deletePreviousCover(article1.getCover());
+        boolean delcover = true;
+        if (!article.getCover().equals(article1.getCover())) {
+            delcover = articleService.deletePreviousCover(article1.getCover());
+        }
         if (delcover) {
             boolean f = articleService.editArticle(article);
+        } else {
+            return Result.error("图片上传失败，当着并不是你的问题");
         }
-
         return Result.success();
     }
 
@@ -116,16 +121,51 @@ public class ArticleController {
      *
      * @param currPage
      * @param pageSize
+     * @param authorId
+     * @param searchData
+     * @param sort
+     * @param request
      * @return
      */
     @GetMapping("/getArticles")
     @Operation(description = "分页获取文章", summary = "分页获取文章")
-    public Result getArticles(@RequestParam int currPage, @RequestParam int pageSize, @RequestParam int isUser, @RequestParam(defaultValue = "") String searchData, @RequestParam(defaultValue = "new") String sort, HttpServletRequest request) {
-        String token = null;
-        if (isUser == 1) {
-            token = request.getHeader("token");
+    public Result getArticles(@RequestParam int currPage, @RequestParam int pageSize,
+                              @RequestParam int authorId, @RequestParam(defaultValue = "") String searchData,
+                              @RequestParam(defaultValue = "new") String sort,
+                              @RequestParam(defaultValue = "false") boolean daily,
+                              @RequestParam(defaultValue = "3") int verify,
+                              HttpServletRequest request) {
+        String token = request.getHeader("token");
+        try {
+            int userId = (int) JwtUtils.parseJWT(token).get("userId");
+            if (authorId != userId) {
+                verify = 3;
+            }
+        } catch (Exception e) {
+            verify = 3;
+            e.printStackTrace();
         }
-        PageBean<ArticleVO> pageBean = articleService.getArticlesByPage(currPage, pageSize, searchData, sort, token);
+
+        PageBean<ArticleVO> pageBean = articleService.getArticlesByPage(currPage, pageSize, searchData, sort, daily, authorId, verify);
+        return Result.success(pageBean);
+    }
+
+    /**
+     * 分页获取收藏文章
+     *
+     * @param currPage
+     * @param pageSize
+     * @param uid
+     * @param searchData
+     * @param sort
+     * @return
+     */
+    @GetMapping("/getCollectionArticles")
+    @Operation(description = "分页获取收藏文章", summary = "分页获取收藏文章")
+    public Result getCollectionArticles(@RequestParam int currPage, @RequestParam int pageSize,
+                                        @RequestParam int uid, @RequestParam(defaultValue = "") String searchData,
+                                        @RequestParam(defaultValue = "newC") String sort) {
+        PageInfo<ArticleVO> pageBean = articleService.getCollectionArticles(currPage, pageSize, searchData, sort, uid);
         return Result.success(pageBean);
     }
 
@@ -147,6 +187,9 @@ public class ArticleController {
     /**
      * 根据文章id获取评论
      *
+     * @param currPage
+     * @param pageSize
+     * @param sort
      * @param id
      * @return
      */
@@ -160,7 +203,8 @@ public class ArticleController {
     /**
      * 发布评论
      *
-     * @param id
+     * @param comment
+     * @param request
      * @return
      */
     @PostMapping("/releaseComment")
@@ -176,5 +220,130 @@ public class ArticleController {
         return Result.success();
     }
 
+    /**
+     * 检测用户章是否可编辑文章
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/checkA")
+    @Operation(description = "检测用户章是否可编辑文章", summary = "检测用户章是否可编辑文章")
+    public Result checkArticle(HttpServletRequest request) {
+        try {
+            Claims claims = JwtUtils.parseJWT(request.getHeader("token"));
+            User user = new User();
+            user.setId((Integer) claims.get("userId"));
+            user.setUsername((String) claims.get("username"));
+            return Result.success(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("");
+        }
 
+    }
+
+    /**
+     * 文章浏览量
+     *
+     * @param dailyView
+     * @return
+     */
+    @PostMapping("/addArticleView")
+    @Operation(description = "文章浏览量", summary = "文章浏览量")
+    public Result addArticleView(@RequestBody DailyView dailyView, HttpServletRequest request) {
+        String token = request.getHeader("token");
+        try {
+            Integer userId = (Integer) JwtUtils.parseJWT(token).get("userId");
+            articleService.addArticleView(dailyView.getArticleId(), userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Result.success();
+    }
+
+    /**
+     * 文章点赞和取消
+     *
+     * @param dailyView
+     * @return
+     */
+    @PostMapping("/articleLike")
+    @Operation(description = "文章点赞", summary = "文章点赞")
+    public Result articleLike(@RequestBody DailyView dailyView, HttpServletRequest request) {
+        try {
+            /*从token中获取用户id*/
+            String token = request.getHeader("token");
+            Integer userId = (Integer) JwtUtils.parseJWT(token).get("userId");
+            if (dailyView.getViews().equals(0))
+                articleService.articleLike(dailyView.getArticleId(), userId);
+            else
+                articleService.cancelArticleLike(dailyView.getArticleId(), userId);
+            return Result.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("token无效，请重新登陆！");
+        }
+
+    }
+
+    /**
+     * 文章收藏和取消
+     *
+     * @param Collection
+     * @return
+     */
+    @PostMapping("/articleCollection")
+    @Operation(description = "文章收藏", summary = "文章收藏")
+    public Result articleCollection(@RequestBody DailyView Collection, HttpServletRequest request) {
+        try {
+            /*从token中获取用户id*/
+            String token = request.getHeader("token");
+            Integer userId = (Integer) JwtUtils.parseJWT(token).get("userId");
+            /* 0为没有收藏，否则取消收藏*/
+            if (Collection.getViews().equals(0))
+                articleService.articleCollection(Collection.getArticleId(), userId);
+            else
+                articleService.cencelArticleCollection(Collection.getArticleId(), userId);
+            return Result.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("token无效，请重新登陆！");
+        }
+
+
+    }
+
+    /**
+     * 判断文章是否点赞
+     *
+     * @param dailyView
+     * @return
+     */
+    @PostMapping("/isArticleLike")
+    @Operation(description = "判断文章是否点赞", summary = "判断文章是否点赞")
+    public Result isArticleLike(@RequestBody DailyView dailyView, HttpServletRequest request) {
+        try {
+            /*从token中获取用户id*/
+            String token = request.getHeader("token");
+            Integer userId = (Integer) JwtUtils.parseJWT(token).get("userId");
+            return articleService.isArticleLike(dailyView.getArticleId(), userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("token无效，请重新登陆！");
+        }
+    }
+
+    /**
+     * 删除文章图片
+     *
+     * @param imageList
+     * @return
+     */
+    @GetMapping("/deleteArticleImage")
+    @Operation(description = "删除文章图片", summary = "删除文章图片")
+    public Result deleteArticleImage(@RequestParam String imageList) {
+        String[] split = imageList.split(",");
+        articleService.deleteArticleImage(split);
+        return Result.success();
+    }
 }

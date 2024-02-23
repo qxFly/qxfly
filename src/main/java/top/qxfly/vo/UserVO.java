@@ -31,9 +31,11 @@ public class UserVO {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
     @Schema(description = "文章数")
-    private String Articles;
+    private Integer Articles;
     @Schema(description = "标签数")
-    private String Tags;
+    private Integer Tags;
     @Schema(description = "点赞数")
-    private String Likes;
+    private Integer Likes;
+    @Schema(description = "收藏数")
+    private Integer Collection;
 }

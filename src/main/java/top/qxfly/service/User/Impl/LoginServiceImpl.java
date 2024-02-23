@@ -3,9 +3,9 @@ package top.qxfly.service.User.Impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import top.qxfly.mapper.User.LoginMapper;
 import top.qxfly.entity.Token;
 import top.qxfly.entity.User;
+import top.qxfly.mapper.User.LoginMapper;
 import top.qxfly.service.User.LoginService;
 import top.qxfly.utils.JwtUtils;
 
@@ -76,7 +76,7 @@ public class LoginServiceImpl implements LoginService {
      * @return
      */
     @Override
-    public long getTokenCreateTime(Token jwt) {
+    public Long getTokenCreateTime(Token jwt) {
         return loginMapper.getJwtCreateTime(jwt);
     }
 

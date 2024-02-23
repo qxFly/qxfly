@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
+<mapper namespace="top.qxfly.mapper.Admin.ArticleCommentManageMapper">
+    <select id="searchArticleComment" resultType="top.qxfly.entity.Comment">
+        select * from comment
+        <where>
+            <if test="comment.id != null">
+                and id = #{comment.id}
+            </if>
+            <if test="comment.articleId != null">
+                and articleId = #{comment.articleId}
+            </if>
+            <if test="comment.content != null">
+                and content like concat('%',#{comment.content},'%')
+            </if>
+            <if test="comment.parentCommentId != null">
+                and parentCommentId = #{comment.parentCommentId}
+            </if>
+            <if test="comment.userId != null">
+                and userId = #{comment.userId}
+            </if>
+            <if test="comment.username != null">
+                and username like concat('%',#{comment.username},'%')
+            </if>
+            <if test="comment.toUserId != null">
+                and toUserId = #{comment.toUserId}
+            </if>
+            <if test="comment.toUsername != null">
+                and toUsername like concat('%',#{comment.toUsername},'%')
+            </if>
+            <if test="comment.verify != 0">
+                and verify = #{comment.verify}
+            </if>
+            <if test="createTimeStart != null">
+                and createTime between #{createTimeStart} and #{createTimeEnd}
+            </if>
+        </where>
+    </select>
+</mapper>

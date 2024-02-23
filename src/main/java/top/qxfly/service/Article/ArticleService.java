@@ -1,13 +1,12 @@
 package top.qxfly.service.Article;
 
+import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 import top.qxfly.entity.Article;
 import top.qxfly.entity.Comment;
 import top.qxfly.pojo.PageBean;
 import top.qxfly.pojo.Result;
 import top.qxfly.vo.ArticleVO;
-
-import java.util.List;
 
 public interface ArticleService {
     /**
@@ -25,7 +24,7 @@ public interface ArticleService {
      * @param pageSize
      * @return
      */
-    PageBean<ArticleVO> getArticlesByPage(int currPage, int pageSize, String searchData, String sort, String token);
+    PageBean<ArticleVO> getArticlesByPage(int currPage, int pageSize, String searchData, String sort, boolean Daily, int authorId, int verify);
 
     /**
      * 根据id获取文章
@@ -85,8 +84,98 @@ public interface ArticleService {
 
     /**
      * 发布评论
+     *
      * @param comment
      * @return
      */
     boolean releaseComment(Comment comment);
+
+    /**
+     * 清空每日浏览量
+     *
+     * @return
+     */
+    boolean resetDailyViewTask(String type);
+
+    /**
+     * 文章点赞
+     *
+     * @param articleId
+     * @param userId
+     * @return
+     */
+    boolean articleLike(Integer articleId, Integer userId);
+
+    /**
+     * 取消用户点赞
+     *
+     * @param articleId
+     * @param userId
+     */
+    boolean cancelArticleLike(Integer articleId, Integer userId);
+
+    /**
+     * 文章收藏
+     *
+     * @param articleId
+     * @param userId
+     */
+    boolean articleCollection(Integer articleId, Integer userId);
+
+    /**
+     * 取消用户收藏
+     *
+     * @param articleId
+     * @param userId
+     */
+    boolean cencelArticleCollection(Integer articleId, Integer userId);
+
+    /**
+     * 判断文章是否点赞
+     *
+     * @param articleId
+     * @param userId
+     */
+    Result isArticleLike(Integer articleId, Integer userId);
+
+    /**
+     * 分页获取收藏文章
+     *
+     * @param currPage
+     * @param pageSize
+     * @param searchData
+     * @param sort
+     * @param uid
+     * @return
+     */
+    PageInfo<ArticleVO> getCollectionArticles(int currPage, int pageSize, String searchData, String sort, int uid);
+
+    /**
+     * 删除文章图片
+     *
+     * @param imageList
+     */
+    boolean deleteArticleImage(String[] imageList);
+
+    /**
+     * 添加文章浏览量
+     *
+     * @param articleId
+     * @param userId
+     */
+    void addArticleView(Integer articleId, Integer userId);
+
+    /**
+     * 清空用户每日浏览记录
+     *
+     * @return
+     */
+    boolean resetUserDailyViewTask();
+
+    /**
+     * 清空用户每日点赞记录
+     *
+     * @return
+     */
+    boolean resetUserDailyLikeTask();
 }

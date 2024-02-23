@@ -49,7 +49,7 @@ public interface LoginService {
      * @param token
      * @return
      */
-    long getTokenCreateTime(Token token);
+    Long getTokenCreateTime(Token token);
 
     /**
      * 检查登录状态

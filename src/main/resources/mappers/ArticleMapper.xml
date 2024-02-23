@@ -5,31 +5,27 @@
     <!--获取文章总量-->
     <select id="getArticleCount" resultType="int">
         select count(a.id) from article a
-        <if test="token != null">
-            ,user_token ut
-        </if>
         <where>
-            <if test="token != null">
-                ut.username = a.author AND ut.token = #{token}
+            <if test="authorId != 0">
+                a.authorId = #{authorId}
             </if>
             <if test="searchData != '' ">
                 and a.title like concat('%',#{searchData},'%')
             </if>
+            and verify = #{verify}
         </where>
     </select>
-    <!--分页获取文章，可以进行搜索，如果传入token则分页获取用户文章-->
+    <!--分页获取文章，可以进行搜索，如果传入userid则分页获取用户文章-->
     <select id="getArticlesByPage" resultType="top.qxfly.entity.Article">
         select a.* from article a
-        <if test="token != null">
-            ,user_token ut
-        </if>
         <where>
-            <if test="token != null">
-                ut.username = a.author AND ut.token = #{token}
+            <if test="authorId != 0">
+                a.authorId = #{authorId}
             </if>
             <if test="searchData != '' ">
                 and a.title like concat('%',#{searchData},'%')
             </if>
+            and verify = #{verify}
         </where>
         <if test="sort == 'new'">
             order by a.createTime desc
@@ -42,8 +38,9 @@
         </if>
         limit #{start}, #{pageSize}
     </select>
+    <!--分页获取文章评论-->
     <select id="getArticleCommentsByPage" resultType="top.qxfly.entity.Comment">
-        select c.*,u.avatar from comment c join `user` u on u.id = c.userId where articleId = #{id} and parentCommentId = 0
+        select c.*,u.avatar from comment c join `user` u on u.id = c.userId where c.articleId = #{id} and c.verify = 3 and parentCommentId = 0
         <if test="sort == 'new'">
             order by c.createTime desc
         </if>
@@ -51,5 +48,27 @@
             order by c.likes desc
         </if>
         limit #{start}, #{pageSize}
+    </select>
+    <!--获取用户收藏-->
+    <select id="getUserCollection" resultType="top.qxfly.vo.ArticleVO">
+        select a.* from article a, user_collection uc
+        <where>
+            uc.uid = #{uid} and uc.articleId = a.id
+            <if test="searchData != '' ">
+                and a.title like concat('%',#{searchData},'%')
+            </if>
+        </where>
+        <if test="sort == 'newC'">
+            order by uc.collectionTime desc
+        </if>
+        <if test="sort == 'new'">
+            order by a.createTime desc
+        </if>
+        <if test="sort == 'hot'">
+            order by a.views desc
+        </if>
+        <if test="sort == 'likes'">
+            order by a.likes desc
+        </if>
     </select>
 </mapper>

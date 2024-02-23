@@ -31,10 +31,14 @@ public class Comment {
     private String avatar;
     @Schema(description = "评论时间")
     private Date createTime;
+    @Schema(description = "评论筛选结束时间")
+    private Date createTimeEnd;
     @Schema(description = "子评论")
     private List<Comment> childComment;
     @Schema(description = "被评论的用户id")
     private Integer toUserId;
     @Schema(description = "被评论的用户名")
     private String toUsername;
+    @Schema(description = "审核")
+    private Integer verify;
 }

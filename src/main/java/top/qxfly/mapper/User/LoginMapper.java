@@ -61,5 +61,5 @@ public interface LoginMapper {
      * @return
      */
     @Select("select create_time from user_token where username = #{username}")
-    long getJwtCreateTime(Token jwt);
+    Long getJwtCreateTime(Token jwt);
 }

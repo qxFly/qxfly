@@ -2,7 +2,6 @@ package top.qxfly.mapper.Admin;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import top.qxfly.entity.Token;
 
 @Mapper
 public interface AdminMapper {
@@ -14,15 +13,6 @@ public interface AdminMapper {
      * @return
      */
     @Select("select role from user where username = #{username}")
-    String check(String username);
-
-    /**
-     * 根据 token 查找 用户
-     *
-     * @param token
-     * @return
-     */
-    @Select("select username from user_token where token = #{token}")
-    String getUserNameByToken(Token token);
+    Integer check(String username);
 
 }

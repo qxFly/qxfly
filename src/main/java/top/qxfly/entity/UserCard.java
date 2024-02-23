@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "用户信息卡")
 public class UserCard {
     @Schema(description = "用户id")
     private Integer id;
@@ -16,10 +17,12 @@ public class UserCard {
     @Schema(description = "简介")
     private String introduction;
     @Schema(description = "文章数")
-    private String Articles;
+    private Integer Articles;
     @Schema(description = "标签数")
-    private String Tags;
+    private Integer Tags;
     @Schema(description = "点赞数")
-    private String Likes;
+    private Integer Likes;
+    @Schema(description = "收藏数")
+    private Integer Collection;
 
 }

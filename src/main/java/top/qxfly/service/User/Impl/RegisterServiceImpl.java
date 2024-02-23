@@ -3,8 +3,8 @@ package top.qxfly.service.User.Impl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import top.qxfly.mapper.User.RegisterMapper;
 import top.qxfly.entity.User;
+import top.qxfly.mapper.User.RegisterMapper;
 import top.qxfly.service.User.RegisterService;
 
 @Slf4j
@@ -30,12 +30,24 @@ public class RegisterServiceImpl implements RegisterService {
      * @return
      */
     @Override
-    public User checkUserName(User user) {
+    public User checkUsername(User user) {
         return registerMapper.findUserByUsername(user);
     }
 
     /**
+     * 检测手机是否被注册
+     *
+     * @param user
+     * @return
+     */
+    @Override
+    public User checkPhone(User user) {
+        return registerMapper.findUserByPhone(user);
+    }
+
+    /**
      * 获取用户
+     *
      * @param user
      * @return
      */
@@ -46,6 +58,7 @@ public class RegisterServiceImpl implements RegisterService {
 
     /**
      * 创建用户信息
+     *
      * @param user1
      */
     @Override

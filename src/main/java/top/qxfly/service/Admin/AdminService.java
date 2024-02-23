@@ -1,7 +1,5 @@
 package top.qxfly.service.Admin;
 
-import top.qxfly.entity.Token;
-
 public interface AdminService {
 
     /**
@@ -10,14 +8,6 @@ public interface AdminService {
      * @param username
      * @return
      */
-    boolean check(String username);
+    Integer check(String username);
 
-
-    /**
-     * 根据 token 查找 用户
-     *
-     * @param token
-     * @return
-     */
-    String getUserNameByToken(Token token);
 }

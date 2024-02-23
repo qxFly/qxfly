@@ -1,5 +1,8 @@
 package top.qxfly.service.Article.Impl;
 
+import com.alibaba.fastjson2.JSONObject;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import top.qxfly.entity.Article;
 import top.qxfly.entity.Comment;
+import top.qxfly.entity.DailyView;
+import top.qxfly.entity.UserLikesAndCollection;
 import top.qxfly.mapper.Article.ArticleMapper;
 import top.qxfly.pojo.PageBean;
 import top.qxfly.pojo.Result;
@@ -18,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -54,10 +60,20 @@ public class ArticleServiceImpl implements ArticleService {
      * @return
      */
     @Override
-    public PageBean<ArticleVO> getArticlesByPage(int currPage, int pageSize, String searchData, String sort, String token) {
-        int count = articleMapper.getArticleCount(searchData, token);
+    public PageBean<ArticleVO> getArticlesByPage(int currPage, int pageSize, String searchData, String sort, boolean daily, int authorId, int verify) {
+        int count;
+        if (!daily) {
+            count = articleMapper.getArticleCount(searchData, authorId, verify);
+        } else {
+            count = articleMapper.getDailyArticleCount();
+        }
         PageBean<ArticleVO> pageBean = new PageBean<>(currPage, pageSize, count);
-        List<Article> articleList = articleMapper.getArticlesByPage(pageBean.getStart(), pageSize, searchData, sort, token);
+        List<Article> articleList;
+        if (!daily) {
+            articleList = articleMapper.getArticlesByPage(pageBean.getStart(), pageSize, searchData, sort, authorId, verify);
+        } else {
+            articleList = articleMapper.getDailyArticlesByPage(pageBean.getStart(), pageSize);
+        }
         List<ArticleVO> articleVOList = new ArrayList<>();
         for (Article article : articleList) {
             ArticleVO articleVO = new ArticleVO();
@@ -66,6 +82,83 @@ public class ArticleServiceImpl implements ArticleService {
         }
         pageBean.setData(articleVOList);
         return pageBean;
+    }
+
+    /**
+     * 分页获取收藏文章
+     *
+     * @param currPage
+     * @param pageSize
+     * @param searchData
+     * @param sort
+     * @param uid
+     * @return
+     */
+    @Override
+    public PageInfo<ArticleVO> getCollectionArticles(int currPage, int pageSize, String searchData, String sort, int uid) {
+        PageHelper.startPage(currPage, pageSize);
+        List<ArticleVO> articleList = articleMapper.getUserCollection(searchData, sort, uid);
+        return new PageInfo<>(articleList);
+    }
+
+    /**
+     * 删除文章图片
+     *
+     * @param imageList
+     * @return
+     */
+    @Override
+    public boolean deleteArticleImage(String[] imageList) {
+        String path = System.getProperty("user.dir") + "/data/qxfly-articleImage/";
+        for (String item : imageList) {
+            File file = new File(path + item);
+            if (file.exists()) {
+                if (!file.delete()) return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 增加文章访问量
+     *
+     * @param articleId
+     * @param userId
+     */
+    @Override
+    public void addArticleView(Integer articleId, Integer userId) {
+        Integer view = articleMapper.getUserArticleView(articleId, userId);
+        if (view == null || view == 0) {
+            articleMapper.addUserArticleView(articleId, userId);
+            articleMapper.addArticleTotalViews(articleId);
+            DailyView dailyView = articleMapper.getDailyViewByArticleId(articleId);
+            if (dailyView == null) {
+                articleMapper.addDailyView(articleId);
+            } else {
+                articleMapper.updateDailyView(articleId);
+            }
+        }
+    }
+
+    /**
+     * 清空用户每日浏览记录
+     *
+     * @return
+     */
+    @Override
+    public boolean resetUserDailyViewTask() {
+        return articleMapper.resetUserDailyViewTask();
+
+    }
+
+    /**
+     * 清空用户每日点赞记录
+     *
+     * @return
+     */
+    @Override
+    public boolean resetUserDailyLikeTask() {
+        return articleMapper.resetUserDailyLikeTask();
     }
 
     /**
@@ -94,8 +187,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
         String uuid = UUID.randomUUID().toString();
         String[] split1 = file.getOriginalFilename().split("\\.");
-        String suffix = split1[split1.length - 1];
-        String fileName = uuid + "." + suffix;
+        String fileName = uuid + "." + "webp";
         try (OutputStream outputStream = new FileOutputStream(path + "/" + fileName)) {
             outputStream.write(file.getBytes());
             return Result.success(articleCoverDownloadPath + fileName);
@@ -124,7 +216,7 @@ public class ArticleServiceImpl implements ArticleService {
         String fileName = uuid + "." + suffix;
         try (OutputStream outputStream = new FileOutputStream(path + "/" + fileName)) {
             outputStream.write(file.getBytes());
-            return Result.success(articleImageDownloadPath + fileName);
+            return Result.success(split1[0], articleImageDownloadPath + fileName);
         } catch (IOException e) {
             e.printStackTrace();
             return Result.error("上传失败");
@@ -139,6 +231,9 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Override
     public boolean deleteArticle(Article article) {
+        String s = article.getCover().split("/")[article.getCover().split("/").length - 1];
+        File cover = new File(System.getProperty("user.dir") + "/data/qxfly-articleCover/" + s);
+        if (cover.exists()) cover.delete();
         return articleMapper.deleteArticleById(article);
     }
 
@@ -199,11 +294,160 @@ public class ArticleServiceImpl implements ArticleService {
 
     /**
      * 发布评论
+     *
      * @param comment
      * @return
      */
     @Override
     public boolean releaseComment(Comment comment) {
         return articleMapper.releaseComment(comment);
+    }
+
+    /**
+     * 清空每日浏览量
+     *
+     * @return
+     */
+    @Override
+    public boolean resetDailyViewTask(String type) {
+        if (type.equals("daily")) {
+            return articleMapper.resetDailyView();
+        } else if (type.equals("weekly")) {
+            return articleMapper.resetWeeklyViews();
+        } else {
+            return articleMapper.resetMonthlyViews();
+        }
+    }
+
+    /**
+     * 文章点赞
+     *
+     * @param articleId
+     * @return
+     */
+    @Override
+    public boolean articleLike(Integer articleId, Integer userId) {
+        Integer al = articleMapper.getUserArticleLike(articleId, userId);
+
+        /*获取用户的点赞json数据*/
+        UserLikesAndCollection userLikes = articleMapper.getUserLikes(userId);
+        ArrayList<Integer> articles = new ArrayList<>();
+        /*如果为空，则创建相关json数据*/
+        if (userLikes == null) {
+            articles.add(articleId);
+            UserLikesAndCollection userLikes1 = new UserLikesAndCollection(userId, JSONObject.toJSONString(articles), JSONObject.toJSONString(""));
+            articleMapper.addUserLikes(userLikes1);
+        } else {
+            //否则查询用户是否点赞
+            String likeArticles = userLikes.getLikeArticles();
+            ArrayList<Integer> arrayList = new ArrayList<>();
+            if (likeArticles != null) {
+                arrayList = JSONObject.parseObject(likeArticles, ArrayList.class);
+
+                for (Object item : arrayList) {
+                    if (item.equals(articleId)) {
+                        //已点赞
+                        return false;
+                    }
+                }
+                //如果点赞记录超过500条，则删除最早的一条
+                if (arrayList.size() > 500) {
+                    arrayList.remove(0);
+                }
+            }
+            //未点赞
+            arrayList.add(articleId);
+            userLikes.setLikeArticles(JSONObject.toJSONString(arrayList));
+            articleMapper.updateUserLikes(userLikes);
+            if (al == null || al == 0) {
+                articleMapper.addUserArticleLike(articleId, userId);
+                articleMapper.articleLike(articleId);
+            }
+
+        }
+        return true;
+    }
+
+    /**
+     * 取消用户点赞
+     *
+     * @param articleId
+     * @param userId
+     * @return
+     */
+    @Override
+    public boolean cancelArticleLike(Integer articleId, Integer userId) {
+        UserLikesAndCollection userLikes = articleMapper.getUserLikes(userId);
+        if (userLikes != null && userLikes.getLikeArticles() != null) {
+            ArrayList<Integer> arrayList = JSONObject.parseObject(userLikes.getLikeArticles(), ArrayList.class);
+            for (Integer item : arrayList) {
+                if (item.equals(articleId)) {
+                    arrayList.remove(articleId);
+                    userLikes.setLikeArticles(JSONObject.toJSONString(arrayList));
+                    articleMapper.updateUserLikes(userLikes);
+                    return true;
+                }
+            }
+
+        }
+        return false;
+    }
+
+    /**
+     * 文章收藏
+     *
+     * @param articleId
+     * @param userId
+     */
+    @Override
+    public boolean articleCollection(Integer articleId, Integer userId) {
+        Integer b = articleMapper.userIsCollArt(articleId, userId);
+        if (b == null) {
+            articleMapper.updateUserCollection(articleId, userId, new Date());
+            articleMapper.addarticleCollectionCount(articleId);
+        }
+        return true;
+    }
+
+    /**
+     * 取消用户收藏
+     *
+     * @param articleId
+     * @param userId
+     * @return
+     */
+    @Override
+    public boolean cencelArticleCollection(Integer articleId, Integer userId) {
+        return articleMapper.deleteUserCollection(articleId, userId);
+    }
+
+    /**
+     * 判断文章是否点赞收藏
+     *
+     * @param articleId
+     * @param userId
+     */
+    @Override
+    public Result
+    isArticleLike(Integer articleId, Integer userId) {
+        String like = "false";
+        String collection = "false";
+        UserLikesAndCollection userLikes = articleMapper.getUserLikes(userId);
+        if (userLikes == null) {
+            return Result.success("false", "false");
+        } else {
+            if (userLikes.getLikeArticles() != null) {
+                String likeArticles = userLikes.getLikeArticles();
+                ArrayList<Integer> a = JSONObject.parseObject(likeArticles, ArrayList.class);
+                for (Object item : a) {
+                    if (item.equals(articleId)) {
+                        like = "true";
+                        break;
+                    }
+                }
+            }
+            if (articleMapper.userIsCollArt(articleId, userId) != null) collection = "true";
+        }
+        return Result.success(like, collection);
     }
 }

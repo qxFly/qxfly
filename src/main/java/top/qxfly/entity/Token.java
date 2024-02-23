@@ -18,4 +18,12 @@ public class Token {
     private String token;
     @Schema(description = "创建时间")
     private Integer time;
+
+    public Token(String token) {
+        this.token = token;
+    }
+
+    public Token(Integer id) {
+        this.id = id;
+    }
 }

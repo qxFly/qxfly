@@ -17,10 +17,19 @@ public interface RegisterService {
      * @param user
      * @return
      */
-    User checkUserName(User user);
+    User checkUsername(User user);
+
+    /**
+     * 检测手机是否被注册
+     *
+     * @param user
+     * @return
+     */
+    User checkPhone(User user);
 
     /**
      * 获取用户
+     *
      * @param user
      * @return
      */
@@ -28,6 +37,7 @@ public interface RegisterService {
 
     /**
      * 创建用户信息
+     *
      * @param user1
      */
     void createUserInfo(User user1);

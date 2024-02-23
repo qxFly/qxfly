@@ -22,12 +22,32 @@ public interface RegisterMapper {
      * @param user
      * @return
      */
-    @Select("select username from user where username = #{username}")
+    @Select("select * from user where username = #{username}")
     User findUserByUsername(User user);
 
+    /**
+     * 检测手机是否被注册
+     *
+     * @param user
+     * @return
+     */
+    @Select("select * from user where phone = #{phone}")
+    User findUserByPhone(User user);
+
+    /**
+     * 获取用户
+     *
+     * @param user
+     * @return
+     */
     @Select("select * from user where username = #{username}")
     User getUser(User user);
 
+    /**
+     * 创建用户信息
+     *
+     * @param user1
+     */
     @Insert("insert into user_card(id, username)VALUES (#{id},#{username})")
     void createUserInfo(User user1);
 }

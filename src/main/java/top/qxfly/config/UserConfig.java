@@ -16,14 +16,21 @@ import java.lang.reflect.Method;
 @Component
 public class UserConfig {
     /*jwt令牌密匙*/
-    private String JwtSignKey = "";
+    private String JwtSignKey = "123";
     /*jwt令牌失效时长*/
     private Long JwtTimeout = 2592000000L;
     /*GithubAPI*/
     private String GithubAPI = "";
     /*邀请码*/
-    private String Invite = "";
-
+    private String Invite = "qxfly";
+    /*阿里云AccessKeyId*/
+    private String Aliyun_AccessKeyId = "";
+    /*阿里云AccessKeySecret*/
+    private String Aliyun_AccessKeySecret = "";
+    /*阿里云短信服务签名名称*/
+    private String Aliyun_Dysmsapi_SignName = "";
+    /*阿里云短信服务模板代码*/
+    private String Aliyun_Dysmsapi_TemplateCode = "";
     @Bean
     public void writeConfig() {
         // 目录路径
@@ -46,8 +53,7 @@ public class UserConfig {
                 UserConfig userConfig = new UserConfig();
                 byte[] bytes = JSONObject.toJSONBytes(userConfig, SerializerFeature.PrettyFormat);
                 outputStream.write(bytes);
-                log.warn("配置文件写出完成，请先填写配置文件");
-
+                log.warn("配置文件写出完成，请先填写配置文件后再重新启动程序！");
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("配置文件写出失败！");

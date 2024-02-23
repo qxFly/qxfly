@@ -33,15 +33,18 @@ public class User {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthday;
     @Schema(description = "角色")
-    private String role;
+    private Integer role;
     @Schema(description = "文章数")
-    private String Articles;
+    private Integer Articles;
     @Schema(description = "标签数")
-    private String Tags;
+    private Integer Tags;
     @Schema(description = "点赞数")
-    private String Likes;
+    private Integer Likes;
+    @Schema(description = "收藏数")
+    private Integer Collection;
     @Schema(description = "盐值")
     private String salt;
+
     public User(String username, String password,String phone) {
         this.username = username;
         this.password = password;
