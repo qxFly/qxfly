@@ -42,7 +42,9 @@ public class WebConfig implements WebMvcConfigurer {
                         "/articleCover/**", //文章封面
                         "/articleImage/**", //文章内容图片
                         "/article/getArticleComments", //获取文章评论
-                        "/article/addArticleView" // 增加浏览量
+                        "/article/addArticleView", // 增加浏览量
+                        "/article/getTags", // 获取标签
+                        "/article/getClassifies" // 获取分类
                 );
     }
     @Override
