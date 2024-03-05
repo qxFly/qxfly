@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="top.qxfly.mapper.FileMapper">
-    <resultMap type="top.qxfly.entity.FilePO" id="FileResult">
+<mapper namespace="fun.qxfly.mapper.FileMapper">
+    <resultMap type="fun.qxfly.entity.FilePO" id="FileResult">
         <id     property="fileId"       column="f_id"      />
         <result property="name"     column="f_name"    />
         <result property="md5"     column="f_md5"    />

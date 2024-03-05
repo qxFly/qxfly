@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
-<mapper namespace="top.qxfly.mapper.Admin.ArticleManageMapper">
+<mapper namespace="fun.qxfly.mapper.Admin.ArticleManageMapper">
 
-    <select id="listArticle" resultType="top.qxfly.entity.Article">
+    <select id="listArticle" resultType="fun.qxfly.entity.Article">
         select * from article
         <where>
             <if test="verify != 0">
@@ -11,7 +11,7 @@
             </if>
         </where>
     </select>
-    <select id="searchArticle" resultType="top.qxfly.entity.Article">
+    <select id="searchArticle" resultType="fun.qxfly.entity.Article">
         select * from article
         <where>
             <if test="articleId != null">
@@ -27,7 +27,10 @@
                 and authorId = #{authorId}
             </if>
             <if test="tag != null">
-                and tag = #{tag}
+                and tag like concat('%', #{tag},'%')
+            </if>
+            <if test="classify != null">
+                and classify like concat('%',#{classify},'%')
             </if>
             <if test="createTimeStart != null">
                 and createTime between #{createTimeStart} and #{createTimeEnd}

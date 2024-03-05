@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
-<mapper namespace="top.qxfly.mapper.Article.ArticleMapper">
+<mapper namespace="fun.qxfly.mapper.Article.ArticleMapper">
     <!--获取文章总量-->
     <select id="getArticleCount" resultType="int">
         select count(a.id) from article a
@@ -12,18 +12,34 @@
             <if test="searchData != '' ">
                 and a.title like concat('%',#{searchData},'%')
             </if>
+            <if test="classify != null and classify != ''">
+                and a.classify = #{classify}
+            </if>
+            <if test="tagArr != null and tagArr != ''">
+                <foreach collection="tagArr" item="t" >
+                    and a.tag like concat('%', #{t},'%')
+                </foreach>
+            </if>
             and verify = #{verify}
         </where>
     </select>
     <!--分页获取文章，可以进行搜索，如果传入userid则分页获取用户文章-->
-    <select id="getArticlesByPage" resultType="top.qxfly.entity.Article">
-        select a.* from article a
+    <select id="getArticlesByPage" resultType="fun.qxfly.vo.ArticleVO">
+        select * from article a left join not_passed_article npa on a.id = npa.aid
         <where>
             <if test="authorId != 0">
                 a.authorId = #{authorId}
             </if>
             <if test="searchData != '' ">
                 and a.title like concat('%',#{searchData},'%')
+            </if>
+            <if test="classify != null and classify != ''">
+                and a.classify = #{classify}
+            </if>
+            <if test="tagArr != null and tagArr != ''">
+                <foreach collection="tagArr" item="t" >
+                    and a.tag like concat('%', #{t},'%')
+                </foreach>
             </if>
             and verify = #{verify}
         </where>
@@ -39,8 +55,9 @@
         limit #{start}, #{pageSize}
     </select>
     <!--分页获取文章评论-->
-    <select id="getArticleCommentsByPage" resultType="top.qxfly.entity.Comment">
-        select c.*,u.avatar from comment c join `user` u on u.id = c.userId where c.articleId = #{id} and c.verify = 3 and parentCommentId = 0
+    <select id="getArticleCommentsByPage" resultType="fun.qxfly.entity.Comment">
+        select c.*,u.avatar from comment c join `user` u on u.id = c.userId where c.articleId = #{id} and c.verify = 3
+        and parentCommentId = 0
         <if test="sort == 'new'">
             order by c.createTime desc
         </if>
@@ -50,7 +67,7 @@
         limit #{start}, #{pageSize}
     </select>
     <!--获取用户收藏-->
-    <select id="getUserCollection" resultType="top.qxfly.vo.ArticleVO">
+    <select id="getUserCollection" resultType="fun.qxfly.vo.ArticleVO">
         select a.* from article a, user_collection uc
         <where>
             uc.uid = #{uid} and uc.articleId = a.id
@@ -70,5 +87,30 @@
         <if test="sort == 'likes'">
             order by a.likes desc
         </if>
+    </select>
+    <select id="listClassifiesByPage" resultType="fun.qxfly.entity.Classify">
+        select * from classify
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null &amp;&amp; name != ''">
+                and name like concat('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+    <select id="listTagsByPage" resultType="fun.qxfly.entity.Tag">
+        select * from tag
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null &amp;&amp; name != ''">
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test="uid != null &amp;&amp; name != 0">
+                and uid = #{uid}
+            </if>
+        </where>
     </select>
 </mapper>

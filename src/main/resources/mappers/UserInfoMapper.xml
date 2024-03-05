@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
-<mapper namespace="top.qxfly.mapper.User.UserInfoMapper">
+<mapper namespace="fun.qxfly.mapper.User.UserInfoMapper">
     <!--更新用户信息-->
-    <update id="updateUserInfo" parameterType="top.qxfly.entity.User">
+    <update id="updateUserInfo" parameterType="fun.qxfly.entity.User">
         update user
         <set>
             <if test="username != null">
@@ -34,7 +34,7 @@
         where id = #{id}
     </update>
     <!--根据token获取用户信息-->
-    <select id="getUserInfoByToken" resultType="top.qxfly.entity.User">
+    <select id="getUserInfoByToken" resultType="fun.qxfly.entity.User">
         SELECT u.* ,uc.Articles, uc.Tags, uc.Likes, uc.Collection FROM
         <if test="token != null &amp;&amp; id == null">
             user_token ut, user u join user_card uc on uc.id = u.id WHERE
