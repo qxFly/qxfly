@@ -366,6 +366,12 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Override
     public boolean releaseComment(Comment comment) {
+        boolean matches = comment.getContent().matches("傻逼|sb");
+        if(!matches){
+            comment.setVerify(3);
+        }else{
+            comment.setVerify(1);
+        }
         return articleMapper.releaseComment(comment);
     }
 

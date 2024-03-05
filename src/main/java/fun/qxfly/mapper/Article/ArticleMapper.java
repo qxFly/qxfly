@@ -93,7 +93,7 @@ public interface ArticleMapper {
      * @param comment
      * @return
      */
-    @Insert("insert into comment(articleId, content, parentCommentId, userId, username, createTime,toUserId,toUsername)values(#{articleId},#{content},#{parentCommentId},#{userId},#{username},#{createTime},#{toUserId},#{toUsername})")
+    @Insert("insert into comment(articleId, content, parentCommentId, userId, username, createTime,toUserId,toUsername,verify)values(#{articleId},#{content},#{parentCommentId},#{userId},#{username},#{createTime},#{toUserId},#{toUsername},#{verify})")
     boolean releaseComment(Comment comment);
 
     /**
