@@ -2,10 +2,7 @@ package fun.qxfly.mapper.Admin;
 
 import fun.qxfly.entity.Classify;
 import fun.qxfly.entity.Tag;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface ClassifyTagManageMapper {
@@ -62,4 +59,22 @@ public interface ClassifyTagManageMapper {
      */
     @Update("update tag set name = #{name} where id = #{id}")
     boolean updateTag(Tag tag);
+
+    /**
+     * 根据名称查找分类
+     *
+     * @param name
+     * @return
+     */
+    @Select("select * from classify where name = #{name}")
+    Classify findClassifyByName(String name);
+
+    /**
+     * 根据名称查找标签
+     *
+     * @param name
+     * @return
+     */
+    @Select("select * from tag where name = #{name}")
+    Tag findTagByName(String name);
 }

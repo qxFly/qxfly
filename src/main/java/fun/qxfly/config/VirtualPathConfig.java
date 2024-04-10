@@ -29,5 +29,8 @@ public class VirtualPathConfig implements WebMvcConfigurer {
         /*文章内容图片*/
         registry.addResourceHandler("/articleImage/**")
                 .addResourceLocations("file:///" + System.getProperty("user.dir") + "/data/qxfly-articleImage/");
+        /*文章附件*/
+        registry.addResourceHandler("/articleAttachment/**")
+                .addResourceLocations("file:///" + System.getProperty("user.dir") + "/data/qxfly-articleAttachment/");
     }
 }

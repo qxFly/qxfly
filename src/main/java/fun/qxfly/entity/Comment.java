@@ -23,12 +23,6 @@ public class Comment {
     private Integer parentCommentId;
     @Schema(description = "点赞")
     private Integer likeCount;
-    @Schema(description = "用户id")
-    private Integer userId;
-    @Schema(description = "用户名")
-    private String username;
-    @Schema(description = "头像")
-    private String avatar;
     @Schema(description = "评论时间")
     private Date createTime;
     @Schema(description = "评论筛选结束时间")
@@ -41,4 +35,6 @@ public class Comment {
     private String toUsername;
     @Schema(description = "审核")
     private Integer verify;
+    @Schema(description = "评论的用户")
+    private User user;
 }

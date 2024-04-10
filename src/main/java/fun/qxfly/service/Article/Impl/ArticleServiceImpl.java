@@ -10,7 +10,6 @@ import fun.qxfly.pojo.Result;
 import fun.qxfly.service.Article.ArticleService;
 import fun.qxfly.vo.ArticleVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,11 +26,12 @@ import java.util.UUID;
 @Slf4j
 @Service
 public class ArticleServiceImpl implements ArticleService {
-
     @Value("${file.articleCover.download.path}")
     private String articleCoverDownloadPath;
     @Value("${file.articleImage.download.path}")
     private String articleImageDownloadPath;
+    @Value("${file.articleAttachment.download.path}")
+    private String articleAttachmentDownloadPath;
     private final ArticleMapper articleMapper;
 
     public ArticleServiceImpl(ArticleMapper articleMapper) {
@@ -45,8 +45,61 @@ public class ArticleServiceImpl implements ArticleService {
      * @return
      */
     @Override
-    public boolean releaseArticle(Article article) {
-        return articleMapper.releaseArticle(article);
+    public Integer releaseArticle(Article article, String image) {
+        /*封面以文件名方式保存至数据库*/
+        String[] split1 = article.getCover().split("/");
+        article.setCover(split1[split1.length - 1]);
+        articleMapper.releaseArticle(article);
+        /*保存文章中的图片*/
+        if (image != null && !image.equals("")) {
+            String[] imageArr = image.split(",");
+            String[] imageUrl = new String[imageArr.length];
+            for (int i = 0; i < imageArr.length; i++) {
+                String[] split = imageArr[i].split("/");
+                String imageName = split[split.length - 1];
+                /*如果文章公开图片，则单独保存*/
+                if (article.getPub() % 10 == 1)
+                    articleMapper.savePubImage(article.getId(), imageName, new Date());
+                else
+                    articleMapper.removePubImage(article.getId());
+                imageUrl[i] = imageName;
+            }
+            articleMapper.saveArticleImage(article.getId(), JSONObject.toJSONString(imageUrl));
+        }
+        return article.getId();
+    }
+
+    /**
+     * 编辑文章
+     *
+     * @param article
+     * @return
+     */
+    @Override
+    public boolean editArticle(Article article) {
+        /*以文件名方式保存至数据库*/
+        String[] split1 = article.getCover().split("/");
+        article.setCover(split1[split1.length - 1]);
+        /*保存文章中的图片*/
+        String[] imageArr = article.getAuthor().split(",");
+        String[] imageUrl = new String[imageArr.length];
+        for (int i = 0; i < imageArr.length; i++) {
+            String[] split = imageArr[i].split("/");
+            String imageName = split[split.length - 1];
+            /*如果文章公开图片，则单独保存*/
+            if (article.getPub() % 10 == 1) {
+                if (!imageName.equals("")) {
+                    Integer c = articleMapper.checkSamePubImage(article.getId(), imageName);
+                    if (c == 0)
+                        articleMapper.savePubImage(article.getId(), imageName, new Date());
+                }
+            } else {
+                articleMapper.removePubImage(article.getId());
+            }
+            imageUrl[i] = imageName;
+        }
+        articleMapper.updateArticleImage(article.getId(), JSONObject.toJSONString(imageUrl));
+        return articleMapper.editArticle(article);
     }
 
     /**
@@ -57,19 +110,22 @@ public class ArticleServiceImpl implements ArticleService {
      * @return
      */
     @Override
-    public PageBean<ArticleVO> getArticlesByPage(int currPage, int pageSize, String searchData, String sort, boolean daily, int authorId, int verify, String classify, String[] tagArr) {
+    public PageBean<ArticleVO> getArticlesByPage(int currPage, int pageSize, String searchData, String sort, boolean daily, int authorId, int verify, String classify, String[] tagArr, int pub) {
         int count;
         if (!daily) {
-            count = articleMapper.getArticleCount(searchData, authorId, verify, classify, tagArr);
+            count = articleMapper.getArticleCount(searchData, authorId, verify, classify, tagArr, pub);
         } else {
             count = articleMapper.getDailyArticleCount();
         }
         PageBean<ArticleVO> pageBean = new PageBean<>(currPage, pageSize, count);
         List<ArticleVO> articleList;
         if (!daily) {
-            articleList = articleMapper.getArticlesByPage(pageBean.getStart(), pageSize, searchData, sort, authorId, verify, classify, tagArr);
+            articleList = articleMapper.getArticlesByPage(pageBean.getStart(), pageSize, searchData, sort, authorId, verify, classify, tagArr, pub);
         } else {
             articleList = articleMapper.getDailyArticlesByPage(pageBean.getStart(), pageSize);
+        }
+        for (ArticleVO article : articleList) {
+            article.setCover(articleCoverDownloadPath + article.getCover());
         }
         pageBean.setData(articleList);
         return pageBean;
@@ -89,11 +145,14 @@ public class ArticleServiceImpl implements ArticleService {
     public PageInfo<ArticleVO> getCollectionArticles(int currPage, int pageSize, String searchData, String sort, int uid) {
         PageHelper.startPage(currPage, pageSize);
         List<ArticleVO> articleList = articleMapper.getUserCollection(searchData, sort, uid);
+        for (ArticleVO article : articleList) {
+            article.setCover(articleCoverDownloadPath + article.getCover());
+        }
         return new PageInfo<>(articleList);
     }
 
     /**
-     * 删除文章图片
+     * 编辑完成时删除没有选择的文章图片
      *
      * @param imageList
      * @return
@@ -104,6 +163,7 @@ public class ArticleServiceImpl implements ArticleService {
         for (String item : imageList) {
             File file = new File(path + item);
             if (file.exists()) {
+                articleMapper.removePubImageByImageName(item);
                 if (!file.delete()) return false;
             }
         }
@@ -111,46 +171,122 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     /**
-     * 增加文章访问量
+     * 根据id获取文章
      *
-     * @param articleId
-     * @param userId
+     * @param id
+     * @return
      */
     @Override
-    public void addArticleView(Integer articleId, Integer userId, String UA) {
+    public Article getArticleById(int id) {
+        Article article = articleMapper.getArticleById(id);
+        article.setCover(articleCoverDownloadPath + article.getCover());
+        return article;
+    }
 
-        Integer view = articleMapper.getUserArticleView(articleId, userId, UA);
-        if (view == null || view == 0) {
-            articleMapper.addUserArticleView(articleId, userId, UA);
-            articleMapper.addArticleTotalViews(articleId);
-            DailyView dailyView = articleMapper.getDailyViewByArticleId(articleId);
-            if (dailyView == null) {
-                articleMapper.addDailyView(articleId);
-            } else {
-                articleMapper.updateDailyView(articleId);
-            }
+    /**
+     * 文章封面上传
+     *
+     * @param file
+     * @return
+     */
+    @Override
+    public Result updateArticleCover(MultipartFile file) {
+        //todo 文章封面上传 返回文件名字，而非地址（暂定）
+        String path = System.getProperty("user.dir") + "/data/qxfly-articleCover";
+        File file1 = new File(path);
+        if (!file1.exists()) {
+            file1.mkdirs();
+        }
+        String uuid = UUID.randomUUID().toString();
+        String fileName = uuid + "." + "webp";
+        try (OutputStream outputStream = new FileOutputStream(path + "/" + fileName)) {
+            outputStream.write(file.getBytes());
+            return Result.success(articleCoverDownloadPath + fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Result.error("上传失败");
         }
     }
 
     /**
-     * 清空用户每日浏览记录
+     * 文章内容图片上传
      *
+     * @param file
      * @return
      */
     @Override
-    public boolean resetUserDailyViewTask() {
-        return articleMapper.resetUserDailyViewTask();
-
+    public Result uploadArticleImage(MultipartFile file) {
+        String path = System.getProperty("user.dir") + "/data/qxfly-articleImage";
+        File file1 = new File(path);
+        if (!file1.exists()) {
+            file1.mkdirs();
+        }
+        String uuid = UUID.randomUUID().toString();
+        String[] split1 = file.getOriginalFilename().split("\\.");
+        String suffix = split1[split1.length - 1];
+        String fileName = uuid + "." + suffix;
+        try (OutputStream outputStream = new FileOutputStream(path + "/" + fileName)) {
+            outputStream.write(file.getBytes());
+            return Result.success(split1[0], articleImageDownloadPath + fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return Result.error("上传失败");
+        }
     }
 
     /**
-     * 清空用户每日点赞记录
+     * 删除文章
      *
+     * @param article
      * @return
      */
     @Override
-    public boolean resetUserDailyLikeTask() {
-        return articleMapper.resetUserDailyLikeTask();
+    public boolean deleteArticle(Article article) {
+        /* 删除封面 */
+        String s = article.getCover().split("/")[article.getCover().split("/").length - 1];
+        File cover = new File(System.getProperty("user.dir") + "/data/qxfly-articleCover/" + s);
+        if (cover.exists()) cover.delete();
+        /* 删除内容图片 */
+        String images = articleMapper.getArticleImage(article);
+        if (images != null) {
+            ArrayList<String> arrayList = JSONObject.parseObject(images, ArrayList.class);
+            String path = System.getProperty("user.dir") + "/data/qxfly-articleImage/";
+            for (String image : arrayList) {
+                File file = new File(path + image);
+                if (file.exists()) {
+                    file.delete();
+                }
+            }
+        }
+        /* 删除附件 */
+        List<Attachment> attachmentList = articleMapper.getArticleAttachmentByAid(article.getId());
+        for (Attachment attachment : attachmentList) {
+            File file = new File(System.getProperty("user.dir") + "/data/qxfly-articleAttachment/" + attachment.getFileName());
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+        articleMapper.deleteAllArticleAttachmentByAid(article.getId());
+        return articleMapper.deleteArticleById(article);
+    }
+
+    /**
+     * 删除之前的封面
+     *
+     * @param coverUrl
+     * @return
+     */
+    @Override
+    public boolean deletePreviousCover(String coverUrl) {
+        String[] split = coverUrl.split("/");
+        String coverName = split[split.length - 1];
+        String path = System.getProperty("user.dir") + "/data/qxfly-articleCover/";
+        File cover = new File(path + coverName);
+        if (cover.exists()) {
+            return cover.delete();
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -200,179 +336,6 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<Tag> listTags() {
         return articleMapper.listTags();
-    }
-
-    @Override
-    public boolean likeComment(Comment comment, User user) {
-        // 0 为点赞，1为取消点赞
-        if(comment.getLikeCount() == 0){
-            Integer i = articleMapper.getUserCommentLike(user, comment);
-            // 用户没有点过赞
-            if (i == null || i == 0) {
-                articleMapper.addUserCommentLike(user, comment);
-            }
-            Integer userCommentDailyLike = articleMapper.getUserCommentDailyLike(user, comment);
-            if (userCommentDailyLike == null || userCommentDailyLike == 0){
-                articleMapper.addUserCommentDailyLike(user, comment);
-                articleMapper.addCommentLike(comment);
-            }
-        }else{
-            articleMapper.cancelUserCommentLike(user, comment);
-        }
-        return true;
-    }
-
-    /**
-     * 获取用户点赞的评论
-     * @param aid
-     * @param uid
-     * @return
-     */
-    @Override
-    public List<Integer> getUserLikeComment(Integer aid, int uid) {
-        return articleMapper.getUserLikeComment(aid, uid);
-    }
-
-    /**
-     * 根据id获取文章
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public Article getArticleById(int id) {
-        return articleMapper.getArticleById(id);
-    }
-
-    /**
-     * 文章封面上传
-     *
-     * @param file
-     * @return
-     */
-    @Override
-    public Result updateArticleCover(MultipartFile file) {
-        String path = System.getProperty("user.dir") + "/data/qxfly-articleCover";
-        File file1 = new File(path);
-        if (!file1.exists()) {
-            file1.mkdirs();
-        }
-        String uuid = UUID.randomUUID().toString();
-        String[] split1 = file.getOriginalFilename().split("\\.");
-        String fileName = uuid + "." + "webp";
-        try (OutputStream outputStream = new FileOutputStream(path + "/" + fileName)) {
-            outputStream.write(file.getBytes());
-            return Result.success(articleCoverDownloadPath + fileName);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Result.error("上传失败");
-        }
-    }
-
-    /**
-     * 文章内容图片上传
-     *
-     * @param file
-     * @return
-     */
-    @Override
-    public Result uploadArticleImage(MultipartFile file) {
-        String path = System.getProperty("user.dir") + "/data/qxfly-articleImage";
-        File file1 = new File(path);
-        if (!file1.exists()) {
-            file1.mkdirs();
-        }
-        String uuid = UUID.randomUUID().toString();
-        String[] split1 = file.getOriginalFilename().split("\\.");
-        String suffix = split1[split1.length - 1];
-        String fileName = uuid + "." + suffix;
-        try (OutputStream outputStream = new FileOutputStream(path + "/" + fileName)) {
-            outputStream.write(file.getBytes());
-            return Result.success(split1[0], articleImageDownloadPath + fileName);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return Result.error("上传失败");
-        }
-    }
-
-    /**
-     * 删除文章
-     *
-     * @param article
-     * @return
-     */
-    @Override
-    public boolean deleteArticle(Article article) {
-        String s = article.getCover().split("/")[article.getCover().split("/").length - 1];
-        File cover = new File(System.getProperty("user.dir") + "/data/qxfly-articleCover/" + s);
-        if (cover.exists()) cover.delete();
-        return articleMapper.deleteArticleById(article);
-    }
-
-    /**
-     * 删除之前的封面
-     *
-     * @param coverUrl
-     * @return
-     */
-    @Override
-    public boolean deletePreviousCover(String coverUrl) {
-        String[] split = coverUrl.split("/");
-        String coverName = split[split.length - 1];
-        String path = System.getProperty("user.dir") + "/data/qxfly-articleCover/";
-        File cover = new File(path + coverName);
-        if (cover.exists()) {
-            return cover.delete();
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * 编辑文章
-     *
-     * @param article
-     * @return
-     */
-    @Override
-    public boolean editArticle(Article article) {
-        return articleMapper.editArticle(article);
-    }
-
-    /**
-     * 根据文章id获取评论
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public PageBean<Comment> getArticleCommentsByPage(int currPage, int pageSize, String sort, int id) {
-        int count = articleMapper.getArticleCommentsCount(id);
-        PageBean<Comment> pageBean = new PageBean<>(currPage, pageSize, count);
-        List<Comment> comments = articleMapper.getArticleCommentsByPage(pageBean.getStart(), pageSize, sort, id);
-        for (Comment comment : comments) {
-            List<Comment> child = articleMapper.getChildCommentByCommentId(comment.getId());
-            comment.setChildComment(child);
-        }
-        pageBean.setData(comments);
-        return pageBean;
-    }
-
-    /**
-     * 发布评论
-     *
-     * @param comment
-     * @return
-     */
-    @Override
-    public boolean releaseComment(Comment comment) {
-        boolean matches = comment.getContent().matches("sb|王八蛋|卖淫|嫖娼|赌博|吸食|毒品|装逼|草泥马|特么的|撕逼|玛勒戈壁|爆菊|JB|呆逼|本屌|齐B短裙|法克鱿|丢你老母|吉跋猫|妈蛋|逗比|我靠|碧莲|碧池|然并卵|日了狗|屁民|吃翔|XX你老母|达菲鸡|装13|逼格|蛋疼|傻逼|绿茶婊|你妈的|表砸|屌爆了|买了个表|淫家|你妹|浮尸国|滚粗");
-        if(!matches){
-            comment.setVerify(3);
-        }else{
-            comment.setVerify(1);
-        }
-        return articleMapper.releaseComment(comment);
     }
 
     /**
@@ -494,6 +457,49 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     /**
+     * 增加文章访问量
+     *
+     * @param articleId
+     * @param userId
+     */
+    @Override
+    public void addArticleView(Integer articleId, Integer userId, String UA) {
+
+        Integer view = articleMapper.getUserArticleView(articleId, userId, UA);
+        if (view == null || view == 0) {
+            articleMapper.addUserArticleView(articleId, userId, UA);
+            articleMapper.addArticleTotalViews(articleId);
+            DailyView dailyView = articleMapper.getDailyViewByArticleId(articleId);
+            if (dailyView == null) {
+                articleMapper.addDailyView(articleId);
+            } else {
+                articleMapper.updateDailyView(articleId);
+            }
+        }
+    }
+
+    /**
+     * 清空用户每日浏览记录
+     *
+     * @return
+     */
+    @Override
+    public boolean resetUserDailyViewTask() {
+        return articleMapper.resetUserDailyViewTask();
+
+    }
+
+    /**
+     * 清空用户每日点赞记录
+     *
+     * @return
+     */
+    @Override
+    public boolean resetUserDailyLikeTask() {
+        return articleMapper.resetUserDailyLikeTask();
+    }
+
+    /**
      * 判断文章是否点赞收藏
      *
      * @param articleId
@@ -521,5 +527,89 @@ public class ArticleServiceImpl implements ArticleService {
             if (articleMapper.userIsCollArt(articleId, userId) != null) collection = "true";
         }
         return Result.success(like, collection);
+    }
+
+    /**
+     * 上传文章附件
+     *
+     * @param file
+     * @return
+     */
+    @Override
+    public String uploadAttachment(MultipartFile file) {
+        String path = System.getProperty("user.dir") + "/data/qxfly-articleAttachment/";
+        File filePath = new File(path);
+        if (!filePath.exists()) {
+            boolean mkdirs = filePath.mkdirs();
+        }
+        if (file != null) {
+            /* 把文件从临时文件转存到指定目录 */
+//            try {
+                String uuid = UUID.randomUUID().toString();
+                String[] split = file.getOriginalFilename().split("\\.");
+                String suffix = split[split.length - 1];
+                String fileName = uuid + "." + suffix;
+//                file.transferTo(new File(path + fileName));
+                try (FileOutputStream fileOutputStream = new FileOutputStream(path + fileName)) {
+                    fileOutputStream.write(file.getBytes());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+                return fileName;
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                return null;
+//            }
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * 删除文章附件
+     *
+     * @param fileName
+     * @return
+     */
+    @Override
+    public boolean deleteAttachment(Integer aid, String fileName) {
+        File file = new File(System.getProperty("user.dir") + "/data/qxfly-articleAttachment/" + fileName);
+        if (aid != null && aid != 0) {
+            articleMapper.deleteAttachment(aid, fileName);
+        }
+
+        return file.exists() && file.delete();
+    }
+
+    /**
+     * 保存文章附件
+     *
+     * @param aid
+     * @param attachmentList
+     * @return
+     */
+    @Override
+    public Integer saveAttachment(Integer aid, Integer uid, List<Attachment> attachmentList) {
+        List<Attachment> articleAttachment = getArticleAttachment(aid);
+        for (Attachment attachment : attachmentList) {
+            articleMapper.saveAttachment(aid, uid, attachment);
+        }
+        return null;
+    }
+
+    /**
+     * 获取文章附件
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public List<Attachment> getArticleAttachment(Integer id) {
+        List<Attachment> articleAttachment = articleMapper.getArticleAttachmentByAid(id);
+        for (Attachment attachment : articleAttachment) {
+            attachment.setDownloadUrl(articleAttachmentDownloadPath + attachment.getFileName());
+        }
+        return articleAttachment;
     }
 }

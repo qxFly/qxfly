@@ -15,5 +15,7 @@ public class Site {
     @Schema(description = "站点名字")
     private String name;
     @Schema(description = "站点地址")
-    private String address;
+    private String url;
+    @Schema(description = "访问状态")
+    private Integer status;
 }

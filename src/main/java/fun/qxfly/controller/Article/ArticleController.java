@@ -1,5 +1,6 @@
 package fun.qxfly.controller.Article;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.github.pagehelper.PageInfo;
 import fun.qxfly.entity.*;
 import fun.qxfly.pojo.PageBean;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
@@ -48,10 +50,14 @@ public class ArticleController {
         Token token = new Token();
         token.setToken(request.getHeader("token"));
         User u = userInfoService.getUserInfoByToken(token);
+        if (u == null) {
+            return Result.error("用户未登录");
+        }
+        String image = article.getAuthor();
         article.setAuthorId(u.getId());
         article.setAuthor(u.getUsername());
-        boolean f = articleService.releaseArticle(article);
-        return Result.success();
+        Integer aid = articleService.releaseArticle(article, image);
+        return Result.success(aid);
     }
 
     /**
@@ -84,7 +90,25 @@ public class ArticleController {
     @Operation(description = "删除文章", summary = "删除文章")
     public Result deleteArticle(@RequestBody Article article) {
         boolean b = articleService.deleteArticle(article);
+        return Result.success();
+    }
 
+    /**
+     * 批量删除文章
+     *
+     * @param article
+     * @return
+     */
+    @PostMapping("/batchDeleteArticle")
+    @Operation(description = "批量删除文章", summary = "批量删除文章")
+    public Result batchDeleteArticle(@RequestBody Article article) {
+        log.info("批量删除文章：" + article.getContent());
+        log.info("批量删除文章：" + article.getContent());
+        String[] split1 = article.getContent().split(",");
+        for (String ar : split1) {
+            Article a = articleService.getArticleById(Integer.parseInt(ar));
+            deleteArticle(a);
+        }
         return Result.success();
     }
 
@@ -135,10 +159,13 @@ public class ArticleController {
                               @RequestParam(defaultValue = "3") int verify,
                               HttpServletRequest request) {
         String token = request.getHeader("token");
+        int pub = 12;
         try {
             int userId = (int) JwtUtils.parseJWT(token).get("userId");
             if (authorId != userId) {
                 verify = 3;
+            } else {
+                pub = 0;
             }
         } catch (Exception e) {
             verify = 3;
@@ -150,7 +177,7 @@ public class ArticleController {
         } else {
             tagArr = tag.split(",");
         }
-        PageBean<ArticleVO> pageBean = articleService.getArticlesByPage(currPage, pageSize, searchData, sort, daily, authorId, verify, classify, tagArr);
+        PageBean<ArticleVO> pageBean = articleService.getArticlesByPage(currPage, pageSize, searchData, sort, daily, authorId, verify, classify, tagArr, pub);
         return Result.success(pageBean);
     }
 
@@ -187,86 +214,6 @@ public class ArticleController {
         BeanUtils.copyProperties(article, articleVO);
         return Result.success(articleVO);
     }
-
-    /**
-     * 根据文章id获取评论
-     *
-     * @param currPage
-     * @param pageSize
-     * @param sort
-     * @param id
-     * @return
-     */
-    @GetMapping("/getArticleComments")
-    @Operation(description = "根据文章id获取评论", summary = "根据文章id获取评论")
-    public Result getArticleComments(@RequestParam int currPage, @RequestParam int pageSize, @RequestParam(defaultValue = "new") String sort, @RequestParam int id) {
-        PageBean<Comment> pageBean = articleService.getArticleCommentsByPage(currPage, pageSize, sort, id);
-        return Result.success(pageBean);
-    }
-
-    /**
-     * 发布评论
-     *
-     * @param comment
-     * @param request
-     * @return
-     */
-    @PostMapping("/releaseComment")
-    @Operation(description = "发布评论", summary = "发布评论")
-    public Result releaseComment(@RequestBody Comment comment, HttpServletRequest request) {
-        Token token = new Token();
-        token.setToken(request.getHeader("token"));
-        User u = userInfoService.getUserInfoByToken(token);
-        comment.setUserId(u.getId());
-        comment.setUsername(u.getUsername());
-        comment.setCreateTime(new Date());
-        boolean b = articleService.releaseComment(comment);
-        return Result.success();
-    }
-
-    /**
-     * 获取用户评论点赞
-     *
-     * @param request
-     * @return
-     */
-    @GetMapping("/getUserLikeComment")
-    @Operation(description = "获取用户评论点赞", summary = "获取用户评论点赞")
-    public Result getUserLikeComment(@RequestParam Integer aid, HttpServletRequest request) {
-        String token = request.getHeader("token");
-        int uid;
-        try {
-            uid = (Integer) JwtUtils.parseJWT(token).get("userId");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Result.error("未登录");
-        }
-        List<Integer> likeComment = articleService.getUserLikeComment(aid, uid);
-        return Result.success(likeComment);
-    }
-
-
-    /**
-     * 评论点赞
-     *
-     * @param comment
-     * @param request
-     * @return
-     */
-    @PostMapping("/likeComment")
-    @Operation(description = "评论点赞", summary = "评论点赞")
-    public Result likeComment(@RequestBody Comment comment, HttpServletRequest request) {
-        String token = request.getHeader("token");
-        User u = new User();
-        try {
-            u.setId((Integer) JwtUtils.parseJWT(token).get("userId"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        boolean f = articleService.likeComment(comment, u);
-        return Result.success();
-    }
-
 
     /**
      * 检测用户章是否可编辑文章
@@ -384,15 +331,16 @@ public class ArticleController {
     }
 
     /**
-     * 删除文章图片
+     * 编辑完成时删除没有选择的文章图片
      *
      * @param imageList
      * @return
      */
     @GetMapping("/deleteArticleImage")
-    @Operation(description = "删除文章图片", summary = "删除文章图片")
+    @Operation(description = "编辑完成时删除没有选择的文章图片", summary = "删除文章图片")
     public Result deleteArticleImage(@RequestParam String imageList) {
         String[] split = imageList.split(",");
+        log.info("split:{}", split);
         articleService.deleteArticleImage(split);
         return Result.success();
     }
@@ -439,5 +387,75 @@ public class ArticleController {
             List<Tag> tagList = articleService.listTags();
             return Result.success(tagList);
         }
+    }
+
+    /**
+     * 上传文章附件
+     *
+     * @param file
+     * @return
+     */
+    @Operation(description = "上传文章附件", summary = "上传文章附件")
+    @PostMapping("/uploadAttachment")
+    public Result upload(MultipartFile file) {
+        String fileName = articleService.uploadAttachment(file);
+        if (fileName != null) {
+            return Result.success(fileName);
+        } else {
+            return Result.error("上传失败");
+        }
+    }
+
+    /**
+     * 删除文章附件
+     *
+     * @param fileName
+     * @return
+     */
+    @Operation(description = "删除文章附件", summary = "删除文章附件")
+    @GetMapping("/deleteAttachment")
+    public Result deleteAttachment(@RequestParam Integer aid, @RequestParam String fileName) {
+        boolean f = articleService.deleteAttachment(aid, fileName);
+        if (fileName != null) {
+            return Result.success(fileName);
+        } else {
+            return Result.error("删除失败");
+        }
+    }
+
+    /**
+     * 获取文章附件
+     *
+     * @param id
+     * @return
+     */
+    @Operation(description = "根据id获取文章附件", summary = "获取文章附件")
+    @GetMapping("/getArticleAttachment")
+    public Result getArticleAttachment(@RequestParam Integer id) {
+        List<Attachment> attachmentList = articleService.getArticleAttachment(id);
+        return Result.success(attachmentList);
+    }
+
+    /**
+     * 保存文章附件
+     *
+     * @param
+     * @return
+     */
+    @Operation(description = "保存文章附件", summary = "保存文章附件")
+    @PostMapping("/saveAttachment")
+    public Result saveAttachment(@RequestBody HashMap<String, Object> map, HttpServletRequest request) {
+        List<Attachment> attachmentList = JSONArray.parseArray((String) map.get("attachment")).toJavaList(Attachment.class);
+        Integer aid = (Integer) map.get("aid");
+        String token = request.getHeader("token");
+        Integer uid;
+        try {
+            uid = (Integer) JwtUtils.parseJWT(token).get("userId");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("保存失败");
+        }
+        Integer f = articleService.saveAttachment(aid, uid, attachmentList);
+        return Result.success();
     }
 }

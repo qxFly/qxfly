@@ -1,9 +1,7 @@
 package fun.qxfly.mapper.Admin;
 
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Update;
 import fun.qxfly.entity.User;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -43,4 +41,32 @@ public interface UserManageMapper {
      */
     @Update("update user set avatar = null where id = #{id}")
     boolean deleteUserAvatar(User user);
+
+    /**
+     * 根据id获取用户信息
+     *
+     * @param id
+     * @return
+     */
+    @Select("select * from user where id = #{id}")
+    User getUserById(Integer id);
+
+    /**
+     * 删除用户token
+     *
+     * @param username
+     */
+    @Delete("delete from user_token where username = #{username}")
+    void remoUserToken(String username);
+
+    /**
+     * 设置用户token
+     *
+     * @param id
+     * @param username
+     * @param token
+     * @param time
+     */
+    @Insert("insert into user_token(userId, username, token, create_time) values(#{id}, #{username}, #{token}, #{time})")
+    void setUserToken(Integer id, String username, String token, long time);
 }

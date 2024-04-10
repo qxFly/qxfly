@@ -2,11 +2,6 @@ package fun.qxfly.service.User.Impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import fun.qxfly.entity.Token;
 import fun.qxfly.entity.User;
 import fun.qxfly.mapper.User.UserInfoMapper;
@@ -14,6 +9,11 @@ import fun.qxfly.pojo.Result;
 import fun.qxfly.service.User.UserInfoService;
 import fun.qxfly.utils.AliyunDysmsapi;
 import fun.qxfly.vo.UserVO;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,6 +33,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     @Autowired
     AliyunDysmsapi aliyunDysmsapi;
 
+    @Value("${file.userImg.download.path}")
+    private String userAvatarPath;
+
     /**
      * 根据Token获取用户
      *
@@ -41,7 +44,14 @@ public class UserInfoServiceImpl implements UserInfoService {
      */
     @Override
     public User getUserInfoByToken(Token token) {
-        return userInfoMapper.getUserInfoByToken(token);
+        User user = userInfoMapper.getUserInfoByToken(token);
+        if (user != null) {
+            if (user.getAvatar() != null)
+                user.setAvatar(userAvatarPath + user.getAvatar());
+            return user;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -52,6 +62,9 @@ public class UserInfoServiceImpl implements UserInfoService {
      */
     @Override
     public boolean updateUserInfo(User user) {
+//        log.info("user:{}",user);
+//        String[] split = user.getAvatar().split("/");
+//        user.setAvatar(split[split.length - 1]);
         return userInfoMapper.updateUserInfo(user);
     }
 
@@ -62,7 +75,7 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @return
      */
     @Override
-    public User checkUsernameAndCode(User user) {
+    public User checkUsername(User user) {
         return userInfoMapper.checkUsername(user);
     }
 
@@ -72,9 +85,6 @@ public class UserInfoServiceImpl implements UserInfoService {
      * @param file
      * @return
      */
-    @Value("${file.userImg.download.path}")
-    private String downloadPath;
-
     @Override
     public Result updateAvatar(MultipartFile file, Token token) {
         String path = System.getProperty("user.dir") + "/data/qxfly-userAvatar";
@@ -84,10 +94,13 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
         User user = userInfoMapper.getUserInfoByToken(token);
         /* 先删除原来的头像 */
-        if (user.getAvatar() != null) {
-            String[] split = user.getAvatar().split("/");
-            String avatarName = split[split.length - 1];
-            File avatarDelete = new File(path + "/" + avatarName);
+        String ava;
+        if ((ava = user.getAvatar()) != null) {
+//            String[] split = user.getAvatar().split("/");
+//            String avatarName = split[split.length - 1];
+//            File avatarDelete = new File(path + "/" + avatarName);
+            File avatarDelete = new File(path + "/" + ava);
+
             boolean delete = avatarDelete.delete();
         }
         String uuid = UUID.randomUUID().toString();
@@ -95,8 +108,9 @@ public class UserInfoServiceImpl implements UserInfoService {
         String fileName = uuid + "." + "webp";
         try (OutputStream outputStream = new FileOutputStream(path + "/" + fileName)) {
             outputStream.write(file.getBytes());
-            userInfoMapper.updateImg(downloadPath + fileName, user.getId());
-            return Result.success(downloadPath + fileName);
+//            userInfoMapper.updateImg(downloadPath + fileName, user.getId());
+            userInfoMapper.updateImg(fileName, user.getId());
+            return Result.success(userAvatarPath + fileName);
         } catch (IOException e) {
             e.printStackTrace();
             return Result.error("上传失败");
@@ -158,6 +172,9 @@ public class UserInfoServiceImpl implements UserInfoService {
     public PageInfo<UserVO> getSuggestAuthorByPage(Integer currPage, Integer pageSize) {
         PageHelper.startPage(currPage, pageSize);
         List<UserVO> userList = userInfoMapper.getSuggestAuthor();
+        for (UserVO userVO : userList) {
+            userVO.setAvatar(userAvatarPath + userVO.getAvatar());
+        }
         return new PageInfo<>(userList);
     }
 
@@ -186,6 +203,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * 检测验证码
+     *
      * @param user
      * @return
      */

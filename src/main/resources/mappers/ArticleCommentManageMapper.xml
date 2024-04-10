@@ -2,7 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
 <mapper namespace="fun.qxfly.mapper.Admin.ArticleCommentManageMapper">
-    <select id="searchArticleComment" resultType="fun.qxfly.entity.Comment">
+    <resultMap id="com" type="fun.qxfly.entity.Comment">
+        <id column="id" property="id"/>
+        <result column="articleId" property="articleId"/>
+        <result column="content" property="content"/>
+        <result column="parentCommentId" property="parentCommentId"/>
+        <result column="likeCount" property="likeCount"/>
+        <result column="createTime" property="createTime"/>
+        <result column="toUsername" property="toUsername"/>
+        <result column="toUserId" property="toUserId"/>
+        <result column="verify" property="verify"/>
+        <association property="user" javaType="fun.qxfly.entity.User">
+            <id column="userId" property="id"/>
+            <result column="username" property="username"/>
+        </association>
+    </resultMap>
+    <select id="searchArticleComment" resultMap="com">
         select * from comment
         <where>
             <if test="comment.id != null">
@@ -17,11 +32,11 @@
             <if test="comment.parentCommentId != null">
                 and parentCommentId = #{comment.parentCommentId}
             </if>
-            <if test="comment.userId != null">
-                and userId = #{comment.userId}
+            <if test="comment.user.id != null">
+                and userId = #{comment.user.id}
             </if>
-            <if test="comment.username != null">
-                and username like concat('%',#{comment.username},'%')
+            <if test="comment.user.username != null">
+                and username like concat('%',#{comment.user.username},'%')
             </if>
             <if test="comment.toUserId != null">
                 and toUserId = #{comment.toUserId}

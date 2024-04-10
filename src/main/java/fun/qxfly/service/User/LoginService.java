@@ -52,14 +52,6 @@ public interface LoginService {
     Long getTokenCreateTime(Token token);
 
     /**
-     * 检查登录状态
-     *
-     * @param token
-     * @return
-     */
-    String checkLoginStatue(Token token);
-
-    /**
      * 保存RSA密匙
      * @param publicKey
      * @param privateKey

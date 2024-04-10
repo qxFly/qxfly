@@ -35,6 +35,9 @@ public class ClassifyTagManageServiceImpl implements ClassifyTagManageService {
      */
     @Override
     public boolean addClassify(Classify classify) {
+        Classify classify1 = classifyTagManageMapper.findClassifyByName(classify.getName());
+        if (classify1 != null)
+            return false;
         return classifyTagManageMapper.addClassify(classify);
     }
 
@@ -57,11 +60,15 @@ public class ClassifyTagManageServiceImpl implements ClassifyTagManageService {
      */
     @Override
     public boolean addTag(Tag tag) {
+        Tag tag1 = classifyTagManageMapper.findTagByName(tag.getName());
+        if (tag1 != null)
+            return false;
         return classifyTagManageMapper.addTag(tag);
     }
 
     /**
      * 更新分类
+     *
      * @param classify
      * @return
      */
@@ -72,6 +79,7 @@ public class ClassifyTagManageServiceImpl implements ClassifyTagManageService {
 
     /**
      * 更新标签
+     *
      * @param tag
      * @return
      */

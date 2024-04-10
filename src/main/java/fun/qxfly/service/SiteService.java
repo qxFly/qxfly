@@ -1,8 +1,7 @@
 package fun.qxfly.service;
 
+import com.github.pagehelper.PageInfo;
 import fun.qxfly.entity.Site;
-
-import java.util.List;
 
 public interface SiteService {
     /**
@@ -10,21 +9,5 @@ public interface SiteService {
      *
      * @return
      */
-    List<Site> listSites();
-
-    /**
-     * 添加站点
-     *
-     * @param site
-     * @return
-     */
-    boolean addSite(Site site);
-
-    /**
-     * 根据id删除站点
-     *
-     * @param site
-     * @return
-     */
-    boolean deleteSite(Site site);
+    PageInfo<Site> listSites(Integer currPage, Integer pageSize, String name);
 }

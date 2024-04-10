@@ -19,13 +19,11 @@ public interface ArticleManageMapper {
 
     /**
      * 文章审核
-     *
-     * @param articleId
-     * @param verify
+     * @param article
      * @return
      */
-    @Update("update article set verify = #{verify} where id = #{articleId}")
-    boolean articleVerify(int articleId, int verify);
+    @Update("update article set verify = #{verify} ,tag = #{tag} ,classify = #{classify} where id = #{id}")
+    boolean articleVerify(Article article);
 
     /**
      * 搜索文章
@@ -55,16 +53,16 @@ public interface ArticleManageMapper {
 
     /**
      * 添加未通过文章的原因
-     * @param articleId
+     * @param article
      * @param reason
      */
-    @Insert("insert into not_passed_article (aid, reason) values (#{articleId}, #{reason})")
-    void addNoPassedArticle(int articleId, String reason);
+    @Insert("insert into not_passed_article (aid, reason) values (#{article.id}, #{reason})")
+    void addNoPassedArticle(Article article, String reason);
 
     /**
      * 删除未通过文章的原因
-     * @param articleId
+     * @param article
      */
-    @Delete("delete from not_passed_article where aid = #{articleId}")
-    void removeNoPassedArticle(int articleId);
+    @Delete("delete from not_passed_article where aid = #{id}")
+    void removeNoPassedArticle(Article article);
 }

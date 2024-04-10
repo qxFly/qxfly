@@ -1,6 +1,7 @@
 package fun.qxfly.controller.Admin;
 
 import com.github.pagehelper.PageInfo;
+import fun.qxfly.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -76,8 +77,10 @@ public class ArticleCommentManageController {
         comment.setArticleId((Integer) map.get("articleId"));
         comment.setContent((String) map.get("content"));
         comment.setParentCommentId((Integer) map.get("parentCommentId"));
-        comment.setUserId((Integer) map.get("userId"));
-        comment.setUsername((String) map.get("username"));
+        User user = new User();
+        user.setId((Integer) map.get("userId"));
+        user.setUsername((String) map.get("username"));
+        comment.setUser(user);
         comment.setToUserId((Integer) map.get("toUserId"));
         comment.setToUsername((String) map.get("toUsername"));
         comment.setVerify((Integer) map.get("verify"));

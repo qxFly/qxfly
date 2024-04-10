@@ -1,12 +1,6 @@
 package fun.qxfly.controller.User;
 
 import com.github.pagehelper.PageInfo;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import fun.qxfly.entity.Token;
 import fun.qxfly.entity.User;
 import fun.qxfly.pojo.Result;
@@ -15,7 +9,15 @@ import fun.qxfly.service.User.UserInfoService;
 import fun.qxfly.utils.JwtUtils;
 import fun.qxfly.utils.RSAEncrypt;
 import fun.qxfly.vo.UserVO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.HashMap;
 
 @Slf4j
@@ -74,17 +76,30 @@ public class UserInfoController {
      */
     @Operation(description = "更改用户信息", summary = "更改用户信息")
     @PostMapping("/updateUserInfo")
-    public Result updateUserInfo(@RequestBody User user) {
-        User u = userInfoService.checkUsernameAndCode(user);
+    public Result updateUserInfo(@RequestBody User user, HttpServletRequest request) {
+        String token = request.getHeader("token");
+        String username;
+        try {
+            username = (String) JwtUtils.parseJWT(token).get("username");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("登录状态异常");
+        }
+        User u = userInfoService.checkUsername(user);
         if (user.getPassword() != null && !user.getPassword().equals("")) {
             int f = userInfoService.testCode(user);
             if (f == 0) return Result.error("验证码错误");
             else if (f == -1) return Result.error("请获取验证码");
         }
+        /*用户名可行*/
         if (u == null || u.getId().equals(user.getId())) {
             user.setAvatar(null);
             boolean flag = userInfoService.updateUserInfo(user);
             if (flag) {
+                if (!username.equals(user.getUsername())) {
+                    String newToken = JwtUtils.createToken(user.getId(), user.getUsername(), new Date(), null);
+                    loginService.updateToken(user.getUsername(), newToken, new Date().getTime());
+                }
                 return Result.success();
             } else {
                 return Result.error("修改失败");
@@ -131,8 +146,7 @@ public class UserInfoController {
     public Result sendCode(@RequestBody User user) {
 //        return Result.success("发送成功");
         int i = userInfoService.sendCode(user);
-        return i == -1 ? Result.error("未知错误") : Result.success();
-
+        return i == -1 ? Result.error("发送失败，服务端错误") : Result.success();
     }
 
     /**

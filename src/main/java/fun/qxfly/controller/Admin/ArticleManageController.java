@@ -8,8 +8,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -22,16 +26,23 @@ public class ArticleManageController {
     ArticleManageService articleManageService;
 
     /**
-     * 文章审核
-     *
-     * @param articleId
-     * @param verify
+     * @param map
      * @return
      */
     @Operation(description = "文章审核", summary = "文章审核")
-    @GetMapping("/articleVerify")
-    public Result articleVerify(@RequestParam int articleId, @RequestParam int verify, @RequestParam String reason) {
-        if (articleManageService.articleVerify(articleId, verify,reason)) {
+    @PostMapping("/articleVerify")
+    public Result articleVerify(@RequestBody HashMap<String, Object> map) {
+        Integer aid = (Integer) map.get("aid");
+        Integer verify = (Integer) map.get("verify");
+        String reason = (String) map.get("reason");
+        String tags = (String) map.get("tags");
+        String classify = (String) map.get("classify");
+        Article article = new Article();
+        article.setVerify(verify);
+        article.setId(aid);
+        article.setTag(tags);
+        article.setClassify(classify);
+        if (articleManageService.articleVerify(article, reason)) {
             return Result.success();
         } else {
             return Result.error("");

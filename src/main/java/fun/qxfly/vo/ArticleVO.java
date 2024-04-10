@@ -40,5 +40,7 @@ public class ArticleVO {
     private String cover;
     @Schema(description = "审核不通过原因")
     private String reason;
+    @Schema(description = "是否公开")
+    private Integer pub;
 
 }

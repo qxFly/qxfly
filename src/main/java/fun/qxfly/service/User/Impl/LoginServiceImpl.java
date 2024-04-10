@@ -51,11 +51,11 @@ public class LoginServiceImpl implements LoginService {
     /**
      * 删除用户token
      *
-     * @param jwt
+     * @param token
      */
     @Override
-    public void deleteToken(Token jwt) {
-        loginMapper.deleteToken(jwt);
+    public void deleteToken(Token token) {
+        loginMapper.deleteToken(token);
     }
 
     /**
@@ -78,29 +78,6 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public Long getTokenCreateTime(Token jwt) {
         return loginMapper.getJwtCreateTime(jwt);
-    }
-
-    /**
-     * 检查登录状态
-     *
-     * @param token
-     * @return
-     */
-    @Override
-    public String checkLoginStatue(Token token) {
-        if (token == null || token.getToken() == null) {
-            log.info("未登入");
-            return "NOT_LOGIN";
-        } else {
-            try {
-                JwtUtils.parseJWT(token.getToken());
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.info("登入状态失效");
-                return "TIME_OUT";
-            }
-        }
-        return "LOGIN";
     }
 
     /**

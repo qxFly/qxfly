@@ -10,7 +10,7 @@
     </parent>
     <groupId>fun.qxfly</groupId>
     <artifactId>qxfly_springboot</artifactId>
-    <version>bate-1.5.8-CORS</version>
+    <version>bate-1.6.7-CORS</version>
     <name>qxfly_springboot</name>
     <description>qxfly_springboot</description>
     <properties>

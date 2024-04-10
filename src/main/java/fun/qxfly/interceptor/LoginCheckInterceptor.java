@@ -1,6 +1,10 @@
 package fun.qxfly.interceptor;
 
 import com.alibaba.fastjson.JSONObject;
+import fun.qxfly.pojo.Result;
+import fun.qxfly.service.Admin.AdminService;
+import fun.qxfly.service.User.LogoutService;
+import fun.qxfly.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,10 +15,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import fun.qxfly.pojo.Result;
-import fun.qxfly.service.Admin.AdminService;
-import fun.qxfly.service.User.LogoutService;
-import fun.qxfly.utils.JwtUtils;
 
 @CrossOrigin
 @Slf4j
@@ -39,8 +39,8 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         //获取请求的url
         String url = req.getRequestURI();
         log.info("请求的url:{}", url);
-        //判断是否为 login 或 listfile,如果是放行
-        String[] urlList = {"download"};
+        //判断是否为 download,如果是放行
+        String[] urlList = {"download", "swagger"};
         for (String s : urlList) {
             if (url.contains(s)) {
                 log.info("该url无需验证：{}", url);
@@ -66,7 +66,15 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             claims = JwtUtils.parseJWT(token);
             /*查询用户是否退出，退出则返回错误结果*/
             String username = logoutService.getLogoutStatus(token);
-            if (username != null) return false;
+            if (username != null) {
+                Result error = Result.error("账号已在其他终端设备退出，请重新登录");
+                //转换为json对象
+                String notlogin = JSONObject.toJSONString(error);
+                resp.setContentType("text/html;charset=UTF-8");
+                resp.getWriter().write(notlogin);
+                return false;
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             log.info("解析证书失败，未登录");

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/manage")
 @io.swagger.v3.oas.annotations.tags.Tag(name = "管理员")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "分类、标签管理")
 public class ClassifyTagManageController {
     private final ClassifyTagManageService classifyTagManageService;
 
@@ -44,7 +45,8 @@ public class ClassifyTagManageController {
     @PostMapping("/addClassify")
     public Result addClassify(@RequestBody Classify classify) {
         boolean f = classifyTagManageService.addClassify(classify);
-        return Result.success();
+        if (f) return Result.success();
+        else return Result.error("分类已存在");
     }
 
     /**
@@ -80,7 +82,8 @@ public class ClassifyTagManageController {
     @PostMapping("/addTag")
     public Result addTag(@RequestBody Tag tag) {
         boolean f = classifyTagManageService.addTag(tag);
-        return Result.success();
+        if (f) return Result.success();
+        else return Result.error("标签已存在");
     }
 
     /**

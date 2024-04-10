@@ -29,9 +29,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/v3/**", //api文档
                         "/swagger-ui/**",//api文档
                         "/fileList", //左侧栏文件列表
-                        "/listWord", //单词列表
-                        "/searchWord", //搜索单词
-                        "/likeSearchWord", //模糊搜索单词
+                        "/saying/**", //一言
                         "/userAvatar/**", //用户头像
                         "/user/getUserInfo", //获取用户信息
                         "/user/getSuggestAuthor",// 获取推荐作者
@@ -44,7 +42,11 @@ public class WebConfig implements WebMvcConfigurer {
                         "/article/getArticleComments", //获取文章评论
                         "/article/addArticleView", // 增加浏览量
                         "/article/getTags", // 获取标签
-                        "/article/getClassifies" // 获取分类
+                        "/article/getClassifies", // 获取分类
+                        "/article/getArticleAttachment", //文章附件
+                        "/articleAttachment/**", //附件下载
+                        "/article/getCollectionArticles", //获取用户收藏
+                        "/articleAttachment/**"
                 );
     }
     @Override

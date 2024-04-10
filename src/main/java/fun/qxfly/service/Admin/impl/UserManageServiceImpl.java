@@ -2,10 +2,11 @@ package fun.qxfly.service.Admin.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.springframework.stereotype.Service;
 import fun.qxfly.entity.User;
 import fun.qxfly.mapper.Admin.UserManageMapper;
 import fun.qxfly.service.Admin.UserManageService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.List;
@@ -18,6 +19,9 @@ public class UserManageServiceImpl implements UserManageService {
         this.userManageMapper = userManageMapper;
     }
 
+    @Value("${file.userImg.download.path}")
+    private String userAvatarDownloadPath;
+
     /**
      * 根据条件列出用户
      *
@@ -28,6 +32,12 @@ public class UserManageServiceImpl implements UserManageService {
     public PageInfo<User> listUser(Integer currPage, Integer pageSize, User user) {
         PageHelper.startPage(currPage, pageSize);
         List<User> userList = userManageMapper.listUser(user);
+        for (User user1 : userList) {
+            if (user1.getAvatar() != null && !user1.getAvatar().equals("")) {
+                user1.setAvatar(userAvatarDownloadPath + user1.getAvatar());
+            }
+
+        }
         return new PageInfo<>(userList);
     }
 
@@ -64,11 +74,16 @@ public class UserManageServiceImpl implements UserManageService {
 
     /**
      * 更改用户信息
+     *
      * @param user
      * @return
      */
     @Override
     public boolean editUserInfo(User user) {
+        User u = userManageMapper.getUserById(user.getId());
+        if (!user.getUsername().equals(u.getUsername())) {
+            userManageMapper.remoUserToken(u.getUsername());
+        }
         return userManageMapper.editUserInfo(user);
     }
 }

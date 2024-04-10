@@ -30,7 +30,7 @@ public interface UserInfoService {
      * @param user
      * @return
      */
-    User checkUsernameAndCode(User user);
+    User checkUsername(User user);
 
     /**
      * 头像上传

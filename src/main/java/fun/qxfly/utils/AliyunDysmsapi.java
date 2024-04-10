@@ -3,10 +3,10 @@ package fun.qxfly.utils;
 import com.aliyun.dysmsapi20170525.Client;
 import com.aliyun.dysmsapi20170525.models.SendSmsRequest;
 import com.aliyun.dysmsapi20170525.models.SendSmsResponse;
+import fun.qxfly.mapper.AliyunDysmsapiMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import fun.qxfly.mapper.AliyunDysmsapiMapper;
 
 import java.util.List;
 import java.util.Random;
@@ -53,6 +53,7 @@ public class AliyunDysmsapi {
                     .setTemplateParam("{\"code\":'" + code + "'}");
             SendSmsResponse sendSmsResponse = client.sendSms(sendSmsRequest);
             if (sendSmsResponse.getStatusCode() == 200 && sendSmsResponse.getBody().getCode().equals("OK")) {
+                /*发送成功*/
                 return code;
             } else {
                 return -1;

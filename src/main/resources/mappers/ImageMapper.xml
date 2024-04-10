@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
+<mapper namespace="fun.qxfly.mapper.ImageMapper">
+    <select id="getImageByPage" resultType="fun.qxfly.entity.Image">
+        select i.* from image i, article a where i.aid = a.id and a.verify = 3
+        <if test="sort == 'new'">
+            order by i.createTime
+        </if>
+        <if test="sort == 'old'">
+            order by i.createTime desc
+        </if>
+    </select>
+</mapper>

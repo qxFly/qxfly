@@ -7,11 +7,11 @@ public interface ArticleManageService {
     /**
      * 文章审核
      *
-     * @param articleId
-     * @param verify
+     * @param article
+     * @param reason
      * @return
      */
-    boolean articleVerify(int articleId, int verify,String reason);
+    boolean articleVerify(Article article,String reason);
 
     /**
      * 搜索文章

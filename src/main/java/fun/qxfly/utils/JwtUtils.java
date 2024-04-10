@@ -16,21 +16,19 @@ public class JwtUtils {
         if (timeout == null){
             timeout = Long.parseLong(defaultTimeout);
         }
-        String jwt = Jwts.builder()
+        return Jwts.builder()
                 .claim("userId", userId)
                 .claim("username", username)
                 .setIssuedAt(date) //设置jwt生成时间
                 .signWith(SignatureAlgorithm.HS256, SignKey)
                 .setExpiration(new Date(System.currentTimeMillis() + timeout))
                 .compact();
-        return jwt;
     }
 
     public static Claims parseJWT(String token) {
-        Claims claims = Jwts.parser()
+        return Jwts.parser()
                 .setSigningKey(SignKey)
                 .parseClaimsJws(token)
                 .getBody();
-        return claims;
     }
 }

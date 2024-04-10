@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
+<mapper namespace="fun.qxfly.mapper.Admin.ImageManageMapper">
+    <select id="getImagesByPage" resultType="fun.qxfly.entity.Image">
+        select i.id, i.originName, i.name, i.url, i.createTime, i.aid, a.verify from image i, article a
+        <where>
+            i.aid = a.id
+            <if test="verify != null &amp;&amp; verify != 0">
+                and a.verify = #{verify}
+            </if>
+            <if test="aid != null &amp;&amp; aid != 0">
+                and aid = #{aid}
+            </if>
+            <if test="originName != null &amp;&amp; originName != ''">
+                and originName like concat('%', #{originName},'%')
+            </if>
+            <if test="createTimeStart != null">
+                and createTime between #{createTimeStart} and #{createTimeEnd}
+            </if>
+        </where>
+    </select>
+</mapper>

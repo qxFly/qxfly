@@ -1,11 +1,14 @@
 package fun.qxfly.service.Article;
 
 import com.github.pagehelper.PageInfo;
-import fun.qxfly.entity.*;
-import org.springframework.web.multipart.MultipartFile;
+import fun.qxfly.entity.Article;
+import fun.qxfly.entity.Attachment;
+import fun.qxfly.entity.Classify;
+import fun.qxfly.entity.Tag;
 import fun.qxfly.pojo.PageBean;
 import fun.qxfly.pojo.Result;
 import fun.qxfly.vo.ArticleVO;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,7 +19,7 @@ public interface ArticleService {
      * @param article
      * @return
      */
-    boolean releaseArticle(Article article);
+    Integer releaseArticle(Article article, String image);
 
     /**
      * 分页获取文章
@@ -25,7 +28,7 @@ public interface ArticleService {
      * @param pageSize
      * @return
      */
-    PageBean<ArticleVO> getArticlesByPage(int currPage, int pageSize, String searchData, String sort, boolean Daily, int authorId, int verify, String classify, String[] tagArr);
+    PageBean<ArticleVO> getArticlesByPage(int currPage, int pageSize, String searchData, String sort, boolean Daily, int authorId, int verify, String classify, String[] tagArr, int pub);
 
     /**
      * 根据id获取文章
@@ -74,22 +77,6 @@ public interface ArticleService {
      * @return
      */
     boolean deleteArticle(Article article);
-
-    /**
-     * 根据文章id获取评论
-     *
-     * @param id
-     * @return
-     */
-    PageBean<Comment> getArticleCommentsByPage(int currPage, int pageSize, String sort, int id);
-
-    /**
-     * 发布评论
-     *
-     * @param comment
-     * @return
-     */
-    boolean releaseComment(Comment comment);
 
     /**
      * 清空每日浏览量
@@ -152,7 +139,7 @@ public interface ArticleService {
     PageInfo<ArticleVO> getCollectionArticles(int currPage, int pageSize, String searchData, String sort, int uid);
 
     /**
-     * 删除文章图片
+     * 编辑完成时删除没有选择的文章图片
      *
      * @param imageList
      */
@@ -214,18 +201,35 @@ public interface ArticleService {
     List<Tag> listTags();
 
     /**
-     * 评论点赞
-     * @param comment
-     * @param u
+     * 上传文章附件
+     *
+     * @param file
      * @return
      */
-    boolean likeComment(Comment comment, User u);
+    String uploadAttachment(MultipartFile file);
 
     /**
-     * 获取用户点赞的评论
-     * @param aid
-     * @param uid
+     * 删除文章附件
+     *
+     * @param fileName
      * @return
      */
-    List<Integer> getUserLikeComment(Integer aid, int uid);
+    boolean deleteAttachment(Integer aid, String fileName);
+
+    /**
+     * 保存文章附件
+     *
+     * @param aid
+     * @param attachmentList
+     * @return
+     */
+    Integer saveAttachment(Integer aid, Integer uid, List<Attachment> attachmentList);
+
+    /**
+     * 获取文章附件
+     *
+     * @param id
+     * @return
+     */
+    List<Attachment> getArticleAttachment(Integer id);
 }

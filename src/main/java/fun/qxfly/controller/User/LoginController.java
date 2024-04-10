@@ -1,40 +1,43 @@
 package fun.qxfly.controller.User;
 
-import io.jsonwebtoken.Claims;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
 import fun.qxfly.entity.Token;
 import fun.qxfly.entity.User;
 import fun.qxfly.pojo.Result;
 import fun.qxfly.service.User.LoginService;
 import fun.qxfly.service.User.LogoutService;
+import fun.qxfly.service.User.UserInfoService;
 import fun.qxfly.utils.JwtUtils;
 import fun.qxfly.utils.RSAEncrypt;
+import io.jsonwebtoken.Claims;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.Map;
 
 /**
- * 登入Controller
+ * 登录Controller
  */
 @Slf4j
 @CrossOrigin
 @RestController
 @Tag(name = "用户")
 public class LoginController {
-    @Resource
+    private final UserInfoService userInfoService;
+
     private final LoginService loginService;
     private final LogoutService logoutService;
 
-    public LoginController(LoginService loginService, LogoutService logoutService) {
+    public LoginController(LoginService loginService, LogoutService logoutService, UserInfoService userInfoService) {
         this.loginService = loginService;
         this.logoutService = logoutService;
+        this.userInfoService = userInfoService;
     }
 
     /**
@@ -65,26 +68,24 @@ public class LoginController {
         if (u != null) {
             /*获取用户的token*/
             Token userToken = loginService.getTokenByUser(u);
-
             /*token不为空*/
             if (userToken != null && userToken.getToken() != null) {
                 try {
                     /*验证Token是否有效*/
                     JwtUtils.parseJWT(userToken.getToken());
-                    /* token有效，登入*/
+                    /* token有效，登录*/
                     logoutService.deleteToken(userToken);
                     return Result.success(u.getUsername(), userToken.getToken());
                 } catch (Exception e) {
                     e.printStackTrace();
                     loginService.deleteToken(userToken);
-                    log.info("登入证书过期或错误！");
+                    log.info("登录证书过期或错误！");
                 }
             }
             /* 用户无token生成token */
             /* 获取现在的时间，转化为毫秒 */
             Date nowdate = new Date();
             long createDate = nowdate.getTime();
-
             String newToken = JwtUtils.createToken(u.getId(), u.getUsername(), nowdate, null);
             loginService.setToken(u.getUsername(), newToken, createDate);
             logoutService.deleteToken(userToken);
@@ -94,18 +95,40 @@ public class LoginController {
     }
 
     /**
-     * 更新登入状态
+     * 更新登录状态
      *
      * @param token
      * @return
      */
-    @Operation(description = "每次进入站点检查更新登入状态", summary = "更新登入状态")
+    @Operation(description = "每次进入站点检查更新登录状态", summary = "更新登录状态")
     @PostMapping("/updateLoginStatue")
-    public Result updateLoginStatue(@RequestBody Token token) {
+    public Result updateLoginStatue(@RequestBody Token token, HttpServletRequest request) {
+        String requestToken = request.getHeader("token");
+        String token1 = token.getToken();
+        /*检测token一致性和是否为空*/
+        if (token1 != null && requestToken != null) {
+            if (!token1.equals(requestToken)) {
+                return Result.error("登录状态异常");
+            }
+        } else {
+            return Result.error("未登录");
+        }
+        String logoutStatus = logoutService.getLogoutStatus(token1);
+        if(logoutStatus != null){
+            return Result.error("");
+        }
+        User userInfoByToken = userInfoService.getUserInfoByToken(token);
+        if (userInfoByToken == null) {
+            return Result.error("登录状态异常");
+        }
         /* 检查token有效性 */
-        String loginStatue = loginService.checkLoginStatue(token);
-        if (!loginStatue.equals("LOGIN")) return Result.error(loginStatue);
-
+        try {
+            JwtUtils.parseJWT(token.getToken());
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info("登录状态失效");
+            return Result.error("登录状态失效");
+        }
         /* 有效则判断剩余时间 */
         Long createTime = loginService.getTokenCreateTime(token);
         if (createTime == null) return Result.error("token无效！");

@@ -2,8 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
 <mapper namespace="fun.qxfly.mapper.Article.ArticleMapper">
+    <insert id="releaseArticle" useGeneratedKeys="true" keyProperty="id">
+        insert into article(title, content, preview, updateTime, createTime, tag, likes, views, authorId, author, cover,
+                            classify,pub)
+        VALUES (#{title}, #{content}, #{preview}, #{updateTime}, #{createTime}, #{tag}, #{likes}, #{views}, #{authorId},
+                #{author}, #{cover}, #{classify},#{pub})
+    </insert>
     <!--获取文章总量-->
-    <select id="getArticleCount" resultType="int">
+    <select id="getArticleCount" resultType="int" >
         select count(a.id) from article a
         <where>
             <if test="authorId != 0">
@@ -16,11 +22,15 @@
                 and a.classify = #{classify}
             </if>
             <if test="tagArr != null and tagArr != ''">
-                <foreach collection="tagArr" item="t" >
+                <foreach collection="tagArr" item="t">
                     and a.tag like concat('%', #{t},'%')
                 </foreach>
             </if>
             and verify = #{verify}
+            <if test="pub != 0">
+                and (pub = 11 or pub = 12)
+            </if>
+
         </where>
     </select>
     <!--分页获取文章，可以进行搜索，如果传入userid则分页获取用户文章-->
@@ -37,11 +47,14 @@
                 and a.classify = #{classify}
             </if>
             <if test="tagArr != null and tagArr != ''">
-                <foreach collection="tagArr" item="t" >
+                <foreach collection="tagArr" item="t">
                     and a.tag like concat('%', #{t},'%')
                 </foreach>
             </if>
             and verify = #{verify}
+            <if test="pub != 0">
+                and (pub = 11 or pub = 12)
+            </if>
         </where>
         <if test="sort == 'new'">
             order by a.createTime desc
@@ -55,7 +68,23 @@
         limit #{start}, #{pageSize}
     </select>
     <!--分页获取文章评论-->
-    <select id="getArticleCommentsByPage" resultType="fun.qxfly.entity.Comment">
+    <resultMap id="comment" type="fun.qxfly.entity.Comment">
+        <id column="id" property="id"/>
+        <result column="articleId" property="articleId"/>
+        <result column="content" property="content"/>
+        <result column="parentCommentId" property="parentCommentId"/>
+        <result column="likeCount" property="likeCount"/>
+        <result column="createTime" property="createTime"/>
+        <result column="toUsername" property="toUsername"/>
+        <result column="toUserId" property="toUserId"/>
+        <result column="verify" property="verify"/>
+        <association property="user" javaType="fun.qxfly.entity.User">
+            <id column="userId" property="id"/>
+            <result column="username" property="username"/>
+            <result column="avatar" property="avatar"/>
+        </association>
+    </resultMap>
+    <select id="getArticleCommentsByPage" resultMap="comment">
         select c.*,u.avatar from comment c join `user` u on u.id = c.userId where c.articleId = #{id} and c.verify = 3
         and parentCommentId = 0
         <if test="sort == 'new'">
@@ -65,6 +94,9 @@
             order by c.likes desc
         </if>
         limit #{start}, #{pageSize}
+    </select>
+    <select id="getChildCommentByCommentId" resultMap="comment">
+        select c.*,u.avatar from comment c join `user` u on u.id = c.userId where parentCommentId = #{id} and c.verify = 3 order by c.createTime ASC
     </select>
     <!--获取用户收藏-->
     <select id="getUserCollection" resultType="fun.qxfly.vo.ArticleVO">

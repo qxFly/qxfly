@@ -26,6 +26,8 @@ public class Article {
     private Date updateTime;
     @Schema(description = "标签")
     private String tag;
+    @Schema(description = "分类")
+    private String classify;
     @Schema(description = "赞")
     private Integer likes = 0;
     @Schema(description = "浏览量")
@@ -36,8 +38,8 @@ public class Article {
     private String author;
     @Schema(description = "封面")
     private String cover;
-    @Schema(description = "分类")
-    private String classify;
     @Schema(description = "是否审核")
     private Integer verify;
+    @Schema(description = "是否公开")
+    private Integer pub;
 }

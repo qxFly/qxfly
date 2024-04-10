@@ -27,7 +27,7 @@ public class AdminController {
      *
      * @return
      */
-    @Operation(description = "传入token,检查是否为管理员、审核员", summary = "检查是否为管理员、审核员")
+    @Operation(description = "检查是否为管理员、审核员", summary = "检查是否为管理员、审核员")
     @PostMapping("/check")
     public Result check(HttpServletRequest request) {
         String username;

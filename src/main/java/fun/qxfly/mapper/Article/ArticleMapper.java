@@ -15,15 +15,14 @@ public interface ArticleMapper {
      * @param article
      * @return
      */
-    @Insert("insert into article(title, content, preview, updateTime, createTime, tag, likes, views, authorId, author, cover,classify)VALUES (#{title},#{content},#{preview},#{updateTime},#{createTime},#{tag},#{likes},#{views},#{authorId},#{author},#{cover},#{classify})")
-    boolean releaseArticle(Article article);
+    Integer releaseArticle(Article article);
 
     /**
      * 获取文章数
      *
      * @return
      */
-    int getArticleCount(String searchData, int authorId, int verify, String classify, String[] tagArr);
+    int getArticleCount(String searchData, int authorId, int verify, String classify, String[] tagArr, int pub);
 
     /**
      * 分页获取文章
@@ -32,7 +31,7 @@ public interface ArticleMapper {
      * @param pageSize
      * @return
      */
-    List<ArticleVO> getArticlesByPage(int start, int pageSize, String searchData, String sort, int authorId, int verify, String classify, String[] tagArr);
+    List<ArticleVO> getArticlesByPage(int start, int pageSize, String searchData, String sort, int authorId, int verify, String classify, String[] tagArr, int pub);
 
     /**
      * 根据id获取文章
@@ -49,7 +48,7 @@ public interface ArticleMapper {
      * @param article
      * @return
      */
-    @Update("update article set title = #{title}, content = #{content}, preview = #{preview}, cover = #{cover}, updateTime = #{updateTime}, tag = #{tag}, verify = #{verify}, classify = #{classify} where id = #{id}")
+    @Update("update article set title = #{title}, content = #{content}, preview = #{preview}, cover = #{cover}, updateTime = #{updateTime}, tag = #{tag}, verify = #{verify}, classify = #{classify},pub = #{pub} where id = #{id}")
     boolean editArticle(Article article);
 
     /**
@@ -60,41 +59,6 @@ public interface ArticleMapper {
      */
     @Delete("delete from article where id = #{id}")
     boolean deleteArticleById(Article article);
-
-    /**
-     * 获取文章评论数
-     *
-     * @param id
-     * @return
-     */
-    @Select("select count(*) from comment where articleId = #{id} and verify = 3 and parentCommentId = 0")
-    int getArticleCommentsCount(int id);
-
-    /**
-     * 根据文章id获取评论
-     *
-     * @param id
-     * @return
-     */
-    List<Comment> getArticleCommentsByPage(int start, int pageSize, String sort, int id);
-
-    /**
-     * 获取子评论
-     *
-     * @param id
-     * @return
-     */
-    @Select("select c.*,u.avatar from comment c join `user` u on u.id = c.userId where parentCommentId = #{id} and c.verify = 3 order by c.createTime ASC")
-    List<Comment> getChildCommentByCommentId(Integer id);
-
-    /**
-     * 发布评论
-     *
-     * @param comment
-     * @return
-     */
-    @Insert("insert into comment(articleId, content, parentCommentId, userId, username, createTime,toUserId,toUsername,verify)values(#{articleId},#{content},#{parentCommentId},#{userId},#{username},#{createTime},#{toUserId},#{toUsername},#{verify})")
-    boolean releaseComment(Comment comment);
 
     /**
      * 清空每日浏览量
@@ -341,33 +305,6 @@ public interface ArticleMapper {
     List<Tag> listTags();
 
     /**
-     * 添加评论点赞
-     *
-     * @param comment
-     */
-    @Update("update comment set likeCount = likeCount + 1 where id = #{id}")
-    Integer addCommentLike(Comment comment);
-
-    /**
-     * 获取用户评论点赞
-     *
-     * @param u
-     * @param comment
-     * @return
-     */
-    @Select("select count(*) from user_like_comment where uid = #{u.id} and cid = #{comment.id}")
-    Integer getUserCommentLike(User u, Comment comment);
-
-    /**
-     * 添加用户评论点赞
-     *
-     * @param comment
-     * @param u
-     */
-    @Insert("insert into user_like_comment(uid, cid,aid)values(#{u.id},#{comment.id},#{comment.articleId})")
-    Integer addUserCommentLike(User u, Comment comment);
-
-    /**
      * 获取用户今日是否点赞
      *
      * @param user
@@ -387,20 +324,100 @@ public interface ArticleMapper {
     Integer addUserCommentDailyLike(User user, Comment comment);
 
     /**
-     * 取消用户评论点赞
+     * 保存文章图片
      *
-     * @param user
-     * @param comment
-     */
-    @Delete("delete from user_like_comment where uid = #{user.id} and cid = #{comment.id}")
-    Integer cancelUserCommentLike(User user, Comment comment);
-
-    /**
-     * 获取用户点赞的评论
      * @param aid
-     * @param uid
+     * @param image
      * @return
      */
-    @Select("select cid from user_like_comment where uid = #{uid} and aid = #{aid}")
-    List<Integer> getUserLikeComment(Integer aid, int uid);
+    @Insert("insert into article_image(aid, image)values(#{aid}, #{image})")
+    boolean saveArticleImage(Integer aid, String image);
+
+    /**
+     * 更新文章图片
+     *
+     * @param aid
+     * @param image
+     */
+    @Update("update article_image set image = #{image} where aid = #{aid}")
+    void updateArticleImage(Integer aid, String image);
+
+    /**
+     * 获取文章图片
+     *
+     * @param article
+     * @return
+     */
+    @Select("select image from article_image where aid = #{id}")
+    String getArticleImage(Article article);
+
+    /**
+     * 保存文章附件
+     *
+     * @param aid
+     * @param uid
+     * @param attachment
+     * @return
+     */
+    @Insert("insert into article_attachment(aid, uid, file_name, file_origin_name)values(#{aid}, #{uid}, #{attachment.fileName}, #{attachment.fileOriginName})")
+    Integer saveAttachment(Integer aid, Integer uid, Attachment attachment);
+
+    /**
+     * 获取文章附件
+     *
+     * @param id
+     * @return
+     */
+    @Select("select * from article_attachment where aid = #{id}")
+    List<Attachment> getArticleAttachmentByAid(Integer id);
+
+    /**
+     * 删除文章附件
+     *
+     * @param aid
+     * @param fileName
+     */
+    @Delete("delete from article_attachment where aid = #{aid} and file_name = #{fileName}")
+    void deleteAttachment(Integer aid, String fileName);
+
+    /**
+     * 删除文章所有附件
+     *
+     * @param id
+     */
+    @Delete("delete from article_attachment where aid = #{id}")
+    void deleteAllArticleAttachmentByAid(Integer id);
+
+    /**
+     * 如果文章公开图片，则单独保存
+     *
+     * @param id
+     * @param imageName
+     */
+    @Insert("insert into image(aid, name, createTime)values(#{id}, #{imageName}, #{date})")
+    void savePubImage(Integer id, String imageName, Date date);
+
+    /**
+     * 如果文章不公开图片 删除文章公开图片
+     *
+     * @param id
+     */
+    @Delete("delete from image where aid = #{id}")
+    void removePubImage(Integer id);
+
+    /**
+     * 如果文章不公开图片 删除文章公开图片,根据图片名称差异删除
+     * @param item
+     */
+    @Delete("delete from image where name = #{item}")
+    void removePubImageByImageName(String item);
+
+    /**
+     * 检查文章公开图片是否重复
+     * @param id
+     * @param imageName
+     * @return
+     */
+    @Select("select count(*) from image where aid = #{id} and name = #{imageName}")
+    Integer checkSamePubImage(Integer id, String imageName);
 }
