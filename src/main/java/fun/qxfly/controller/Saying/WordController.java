@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 @CrossOrigin
 @Tag(name = "一言")
 @RequestMapping("/saying")
+@Deprecated
 public class WordController {
     private final WordService wordService;
 

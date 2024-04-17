@@ -117,4 +117,11 @@ public interface ArticleCommentMapper {
      */
     @Select("select cid from user_like_comment where uid = #{uid} and aid = #{aid}")
     List<Integer> getUserLikeComment(Integer aid, int uid);
+
+    /**
+     * 减少评论点赞数
+     * @param comment
+     */
+    @Update("update comment set likeCount = likeCount - 1 where id = #{id}")
+    void reduceCommentLike(Comment comment);
 }

@@ -33,7 +33,7 @@ public interface ArticleCommentService {
      * @param u
      * @return
      */
-    boolean likeComment(Comment comment, User u);
+    Integer likeComment(Comment comment, User u);
 
     /**
      * 获取用户点赞的评论

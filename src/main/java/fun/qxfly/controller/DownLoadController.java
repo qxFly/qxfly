@@ -18,6 +18,8 @@ import java.util.Objects;
 @CrossOrigin
 @Slf4j
 @Tag(name = "文件")
+@Tag(name = "暂时废弃")
+@Deprecated
 public class DownLoadController {
     @Value("${file.path}")
     private String filePath;

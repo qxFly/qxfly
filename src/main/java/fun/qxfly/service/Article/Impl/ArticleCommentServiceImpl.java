@@ -31,23 +31,22 @@ public class ArticleCommentServiceImpl implements ArticleCommentService {
      * @return
      */
     @Override
-    public boolean likeComment(Comment comment, User user) {
+    public Integer likeComment(Comment comment, User user) {
+        Integer i = articleCommentMapper.getUserCommentLike(user, comment);
+        Integer userCommentDailyLike = articleCommentMapper.getUserCommentDailyLike(user, comment);
         // 0 为点赞，1为取消点赞
-        if (comment.getLikeCount() == 0) {
-            Integer i = articleCommentMapper.getUserCommentLike(user, comment);
-            // 用户没有点过赞
-            if (i == null || i == 0) {
-                articleCommentMapper.addUserCommentLike(user, comment);
-            }
-            Integer userCommentDailyLike = articleCommentMapper.getUserCommentDailyLike(user, comment);
-            if (userCommentDailyLike == null || userCommentDailyLike == 0) {
-                articleCommentMapper.addUserCommentDailyLike(user, comment);
-                articleCommentMapper.addCommentLike(comment);
-            }
-        } else {
+        // 用户点过赞
+        if (i != null && i != 0 && userCommentDailyLike != null && userCommentDailyLike != 0) {
             articleCommentMapper.cancelUserCommentLike(user, comment);
+            articleCommentMapper.reduceCommentLike(comment);
+            return 0;
+        } else {
+            /*用户没有点赞，且行为为点赞*/
+            articleCommentMapper.addUserCommentLike(user, comment);
+            articleCommentMapper.addUserCommentDailyLike(user, comment);
+            articleCommentMapper.addCommentLike(comment);
+            return 1;
         }
-        return true;
     }
 
     /**

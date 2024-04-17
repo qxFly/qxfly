@@ -19,6 +19,8 @@ import java.util.*;
 @CrossOrigin
 @Slf4j
 @Tag(name = "文件")
+@Tag(name = "暂时废弃")
+@Deprecated
 public class FileController {
 
     @Value("${file.path}")

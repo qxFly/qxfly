@@ -112,7 +112,7 @@ public class ArticleCommentController {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        boolean f = articleCommentService.likeComment(comment, u);
-        return Result.success();
+        Integer f = articleCommentService.likeComment(comment, u);
+        return Result.success(f);
     }
 }

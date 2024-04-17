@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 @Component
 public class UserConfig {
     /*jwt令牌密匙*/
-    private String JwtSignKey = "123";
+    private String JwtSignKey = "qxfly";
     /*jwt令牌失效时长*/
     private Long JwtTimeout = 2592000000L;
     /*GithubAPI*/

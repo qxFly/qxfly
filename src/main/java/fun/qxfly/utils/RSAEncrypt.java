@@ -115,8 +115,6 @@ public class RSAEncrypt {
         cipher.init(Cipher.DECRYPT_MODE, priKey);
         return new String(cipher.doFinal(inputByte));
     }
-
-
 //    public static void main(String[] args) throws Exception {
 //        //生成公钥和私钥
 //        Map<Integer, String> keyMap = genKeyPair();

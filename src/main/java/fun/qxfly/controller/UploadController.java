@@ -14,6 +14,8 @@ import java.io.IOException;
 @Slf4j
 @RestController
 @Tag(name = "文件")
+@Tag(name = "暂时废弃")
+@Deprecated
 public class UploadController {
 
     private final UploadService uploadService;

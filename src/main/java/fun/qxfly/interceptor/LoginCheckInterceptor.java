@@ -35,7 +35,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             log.info("OPTIONS请求，放行");
             return true;
         }
-
         //获取请求的url
         String url = req.getRequestURI();
         log.info("请求的url:{}", url);
@@ -47,7 +46,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
-
         //获取证书token
         String token = req.getHeader("token");
         //判断证书是否存在，如果不存在，返回错误结果（未登录）
@@ -59,7 +57,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             resp.getWriter().write(notlogin);
             return false;
         }
-
         //解析token，解析失败，返回错误结果（未登录）
         Claims claims;
         try {
@@ -74,7 +71,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
                 resp.getWriter().write(notlogin);
                 return false;
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             log.info("解析证书失败，未登录");
@@ -84,7 +80,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
             resp.getWriter().write(notlogin);
             return false;
         }
-
         /*检查是否为管理员*/
         if (url.contains("manage")) {
             String username = (String) claims.get("username");
@@ -92,7 +87,6 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
                 return false;
             }
         }
-
         //放行
         log.info("证书合法，放行");
         return true;

@@ -15,6 +15,7 @@ import java.util.Random;
 @CrossOrigin
 @Tag(name = "一言")
 @RequestMapping("/saying")
+@Deprecated
 public class SayingController {
 
 //    /**

@@ -1,5 +1,5 @@
 package fun.qxfly.entity;
-
+@Deprecated
 public class ChunkPO {
     private Integer chunkId;
     private String md5;

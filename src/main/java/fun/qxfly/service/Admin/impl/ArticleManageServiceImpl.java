@@ -56,8 +56,8 @@ public class ArticleManageServiceImpl implements ArticleManageService {
             reason = "您的文章《" + articleById.getTitle() + "》由于" + reason + "，审核未通过，请去除违规内容后重新发布后！";
             message.setContent(reason);
             message.setUid2(articleById.getAuthorId());
-            message.setUid1(1);
-            String msgId = messageMapper.getMsgId(1, articleById.getAuthorId());
+            message.setUid1(0);
+            String msgId = messageMapper.getMsgId(0, articleById.getAuthorId());
             message.setMsgId(msgId);
             messageService.sendMessage(message);
         }

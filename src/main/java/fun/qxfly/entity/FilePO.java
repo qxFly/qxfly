@@ -1,5 +1,5 @@
 package fun.qxfly.entity;
-
+@Deprecated
 public class FilePO {
     private Integer fileId;
     private String md5;
