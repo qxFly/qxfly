@@ -16,7 +16,7 @@
                 and originName like concat('%', #{originName},'%')
             </if>
             <if test="createTimeStart != null">
-                and createTime between #{createTimeStart} and #{createTimeEnd}
+                and i.createTime between #{createTimeStart} and #{createTimeEnd}
             </if>
         </where>
     </select>

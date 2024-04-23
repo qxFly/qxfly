@@ -23,7 +23,7 @@
             <if test="location != null &amp;&amp; location != ''">
                 and location like concat('%',#{location},'%')
             </if>
-            <if test="role != null &amp;&amp; role != ''">
+            <if test="role != null">
                 and role = #{role}
             </if>
         </where>

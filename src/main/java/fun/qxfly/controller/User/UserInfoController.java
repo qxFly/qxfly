@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 @Slf4j
 @RestController
@@ -79,18 +80,30 @@ public class UserInfoController {
     public Result updateUserInfo(@RequestBody User user, HttpServletRequest request) {
         String token = request.getHeader("token");
         String username;
+        Integer uid;
         try {
             username = (String) JwtUtils.parseJWT(token).get("username");
+            uid = (Integer) JwtUtils.parseJWT(token).get("userId");
         } catch (Exception e) {
             e.printStackTrace();
             return Result.error("登录状态异常");
         }
         User u = userInfoService.checkUsername(user);
-        if (user.getPassword() != null && !user.getPassword().equals("")) {
-            int f = userInfoService.testCode(user);
-            if (f == 0) return Result.error("验证码错误");
-            else if (f == -1) return Result.error("请获取验证码");
+        String op = userInfoService.getOriginPhone(uid);
+        if ((user.getPassword() != null && !user.getPassword().equals("")) || (!Objects.equals(user.getPhone(), op))) {
+            if (user.getRole() != null) {
+                User user1;
+                user1 = user;
+                user1.setPhone(op);
+                int f = userInfoService.testCode(user1);
+                if (f == 0) return Result.error("验证码错误");
+                else if (f == -1) return Result.error("请获取验证码");
+            } else {
+                return Result.error("请输入验证码");
+            }
+
         }
+
         /*用户名可行*/
         if (u == null || u.getId().equals(user.getId())) {
             user.setAvatar(null);

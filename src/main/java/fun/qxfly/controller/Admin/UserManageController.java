@@ -37,6 +37,7 @@ public class UserManageController {
         user.setRole((Integer) map.get("role"));
         user.setEmail((String) map.get("email"));
         user.setPhone((String) map.get("phone"));
+//        log.info("查询用户参数:{}", user);
         PageInfo<User> pageBean = userManageService.listUser((Integer) map.get("currPage"), (Integer) map.get("pageSize"), user);
         return Result.success(pageBean);
     }

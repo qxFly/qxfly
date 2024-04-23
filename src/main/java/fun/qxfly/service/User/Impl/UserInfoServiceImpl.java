@@ -213,6 +213,16 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     /**
+     * 获取用户原手机号
+     * @param uid
+     * @return
+     */
+    @Override
+    public String getOriginPhone(Integer uid) {
+        return userInfoMapper.getOriginPhone(uid);
+    }
+
+    /**
      * 找回密码
      *
      * @param phone

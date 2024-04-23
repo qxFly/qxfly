@@ -91,4 +91,11 @@ public interface UserInfoService {
      * @return
      */
     int testCode(User user);
+
+    /**
+     * 获取原手机号
+     * @param uid
+     * @return
+     */
+    String getOriginPhone(Integer uid);
 }

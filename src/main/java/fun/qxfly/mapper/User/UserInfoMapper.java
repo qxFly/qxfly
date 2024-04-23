@@ -125,5 +125,13 @@ public interface UserInfoMapper {
      */
     @Delete("delete from captcha where createTime < #{date} - 1000 * 60 * 5")
     Integer clearCaptchaTask(long date);
+
+    /**
+     * 获取用户原手机号
+     * @param uid
+     * @return
+     */
+    @Select("select phone from user where id = #{uid}")
+    String getOriginPhone(Integer uid);
 }
 

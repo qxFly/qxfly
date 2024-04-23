@@ -15,7 +15,7 @@
             <if test="email != null">
                 email = #{email},
             </if>
-            <if test="phone != null">
+            <if test="phone != null &amp;&amp; phone != ''">
                 phone = #{phone},
             </if>
             <if test="introduction != null">
