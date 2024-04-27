@@ -173,7 +173,8 @@ public class UserInfoServiceImpl implements UserInfoService {
         PageHelper.startPage(currPage, pageSize);
         List<UserVO> userList = userInfoMapper.getSuggestAuthor();
         for (UserVO userVO : userList) {
-            userVO.setAvatar(userAvatarPath + userVO.getAvatar());
+            if (userVO.getAvatar() != null)
+                userVO.setAvatar(userAvatarPath + userVO.getAvatar());
         }
         return new PageInfo<>(userList);
     }
@@ -214,6 +215,7 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /**
      * 获取用户原手机号
+     *
      * @param uid
      * @return
      */
